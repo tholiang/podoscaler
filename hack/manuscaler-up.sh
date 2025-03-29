@@ -1,5 +1,5 @@
 #!/bin/bash
-$(minikube -p minikube docker-env)
+eval $(minikube -p minikube docker-env)
 docker image build -t manuscaler-img ./manuscaler
 kubectl apply -f ./manuscaler/rbac.yaml
 kubectl apply -f ./manuscaler/deployment.yaml

@@ -11,10 +11,12 @@ import (
 	"k8s.io/client-go/kubernetes"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 /* --- GLOBAL VARS --- */
 var clientset kube_client.Interface
+var metrics_clientset *metrics_client.Clientset
 
 // test response
 func index(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,19 @@ func vscale(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, err)
 		return
 	}
+
+	podMetricsList, err := metrics_clientset.MetricsV1beta1().PodMetricses("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Fprint(w, err)
+		return
+	}
+	fmt.Printf("items len: %d\n", len(podMetricsList.Items))
+	for _, v := range podMetricsList.Items {
+		fmt.Printf("%s\n", v.GetName())
+		fmt.Printf("%s\n", v.GetNamespace())
+		fmt.Printf("%vm\n", v.Containers[0].Usage.Cpu().MilliValue())
+		fmt.Printf("%vMi\n", v.Containers[0].Usage.Memory().Value()/(1024*1024))
+	}
 	fmt.Fprintf(w, "done")
 }
 
@@ -89,6 +104,11 @@ func main() {
 	}
 	// creates the clientset
 	clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	metrics_clientset, err = metrics_client.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
 	}
