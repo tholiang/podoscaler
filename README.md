@@ -10,14 +10,22 @@
 2. `minikube start --feature-gates=InPlacePodVerticalScaling=true` [(with docker)](https://minikube.sigs.k8s.io/docs/drivers/docker/)
 
 ## build and deploy dummy app (testapp) to minikube cluster
+run `./hack/testapp-up` 
+
+**or**
+
 1. might need to run `eval $(minikube -p minikube docker-env)` to enter minikube's docker env for the build
 2. `minikube image build -t testapp-img ./testapp` **or** `docker image build -t testapp-img ./testapp`
 3. `minikube image ls` to see if it built
 4. `kubectl apply -f ./testapp/deployment.yaml` to launch
 5. check deployment with `kubectl get deployments` and `kubectl get pods`
-6. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
+6. delete deployment with `kubectl delete deployment testapp` **or** `./hack/testapp-down` (if you're done)
 
 ## build and deploy manuscaler to minikube cluster
+run `./hack/manuscaler-up`
+
+**or**
+
 1. might need to run `eval $(minikube -p minikube docker-env)` to enter minikube's docker env for the build
 2. `minikube image build -t manuscaler-img ./manuscaler` **or** `docker image build -t manuscaler-img ./manuscaler`
 3. `minikube image ls` to see if it built
@@ -27,7 +35,7 @@
 7. `kubectl expose deployment/manuscaler --type="NodePort" --port 3001` to open a port
 8. `kubectl port-forward svc/manuscaler 3001` (needed for windows and mac i think)
 9. test `localhost:3001/` - should return "hello"
-10. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
+10. delete deployment with `kubectl delete deployment manuscaler` **or** `./hack/manuscaler-down` (if you're done)
 
 ## horizontially scaling testapp with manuscaler
 make a REST API call to
