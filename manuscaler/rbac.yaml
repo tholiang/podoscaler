@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: manuscaler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: scaler
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments/scale
+      - pods/resize
+      - pods
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scaler-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: scaler
+subjects:
+  - kind: ServiceAccount
+    name: manuscaler
+    namespace: default
+# all from https://github.com/kubernetes/autoscaler/blob/93a37e47308ad58275e909bfeaa0347b2ef6b4ba/vertical-pod-autoscaler/deploy/vpa-rbac.yaml
