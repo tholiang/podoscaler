@@ -16,7 +16,7 @@ or `docker image build -t testapp-img ./testapp`
 3. `minikube image ls` to see if it built
 4. `kubectl apply -f ./testapp/deployment.yaml` to launch
 5. check deployment with `kubectl get deployments` and `kubectl get pods`
-6. Delete deployment with `kubectl delete deployment manuscaler` (if you're done)
+6. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
 
 ## build and deploy manuscaler to minikube cluster
 1. might need to run `eval $(minikube -p minikube docker-env)` to enter minikube's docker env for the build
@@ -29,7 +29,7 @@ or `docker image build -t manuscaler-img ./manuscaler`
 7. `kubectl expose deployment/manuscaler --type="NodePort" --port 3001` to open a port
 8. `kubectl port-forward svc/manuscaler 3001` (needed for windows and mac i think)
 9. test `localhost:3001/`
-10. Delete deployment with `kubectl delete deployment manuscaler` (if you're done)
+10. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
 
 ## horizontially scaling testapp with manuscaler
 make a REST API call to
