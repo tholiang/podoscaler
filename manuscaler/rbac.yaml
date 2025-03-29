@@ -9,6 +9,7 @@ metadata:
   name: scaler
 rules:
   - apiGroups:
+      - 
       - apps
     resources:
       - deployments/scale
@@ -30,3 +31,4 @@ subjects:
     name: manuscaler
     namespace: default
 # all from https://github.com/kubernetes/autoscaler/blob/93a37e47308ad58275e909bfeaa0347b2ef6b4ba/vertical-pod-autoscaler/deploy/vpa-rbac.yaml
+# https://kubernetes.io/docs/reference/access-authn-authz/rbac/
