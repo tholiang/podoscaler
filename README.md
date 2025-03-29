@@ -41,6 +41,8 @@ with a json body
 }
 ```
 
+check pods with `kubectl get pods`
+
 ## vertically scaling testapp with manuscaler
 choose a pod from `kubectl get pods`
 then make a REST API call to
@@ -56,3 +58,5 @@ with a json body
 }
 ```
 (or another value instead of 900m; 900m means 90% of a CPU, use "1", "2",...for allocating 1, 2,... full cpus)
+
+check status of pod with `kubectl get pod [POD NAME] --output=yaml`
