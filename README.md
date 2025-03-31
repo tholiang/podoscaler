@@ -1,15 +1,25 @@
 # podoscaler
 
 ## prereqs
+
 - [docker](https://www.docker.com/)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ## setup
+
 1. clone repo
 2. `minikube start --feature-gates=InPlacePodVerticalScaling=true` [(with docker)](https://minikube.sigs.k8s.io/docs/drivers/docker/)
 
+## install Jaeger for tracing
+
+1. install `cert-manager` with `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.0/cert-manager.yaml`
+2. install OpenTelemetry operator with `kubectl apply -f otel/opentelemetry-operator.yaml`
+3. create jaeger instance with `kubectl apply -f jaeger/deployment.yaml`
+4. create instrumentation sidecar resource with `kubectl apply -f jaeger/instrumentation.yaml`
+
 ## build and deploy dummy app (testapp) to minikube cluster
+
 1. might need to run `eval $(minikube -p minikube docker-env)` to enter minikube's docker env for the build
 2. `minikube image build -t testapp-img ./testapp` **or** `docker image build -t testapp-img ./testapp`
 3. `minikube image ls` to see if it built
@@ -18,6 +28,7 @@
 6. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
 
 ## build and deploy manuscaler to minikube cluster
+
 1. might need to run `eval $(minikube -p minikube docker-env)` to enter minikube's docker env for the build
 2. `minikube image build -t manuscaler-img ./manuscaler` **or** `docker image build -t manuscaler-img ./manuscaler`
 3. `minikube image ls` to see if it built
@@ -30,9 +41,11 @@
 10. delete deployment with `kubectl delete deployment manuscaler` (if you're done)
 
 ## horizontially scaling testapp with manuscaler
+
 make a REST API call to
 `localhost:3001/hscale`
 with a json body
+
 ```
 {
     "deploymentnamespace": "default",
@@ -42,10 +55,12 @@ with a json body
 ```
 
 ## vertically scaling testapp with manuscaler
+
 choose a pod from `kubectl get pods`
 then make a REST API call to
 `localhost:3001/vscale`
 with a json body
+
 ```
 {
     "podnamespace": "default",
@@ -55,4 +70,5 @@ with a json body
     "cpulimits": "900m"
 }
 ```
+
 (or another value instead of 900m; 900m means 90% of a CPU, use "1", "2",...for allocating 1, 2,... full cpus)
