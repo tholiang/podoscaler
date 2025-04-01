@@ -1,15 +1,12 @@
-package manuscaler
+package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"../scalerutil"
+	util "github.com/tholiang/podoscaler/scalers/util"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -28,7 +25,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 // horizontal: scale the number of pods of some deployment
 func hscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into HorizontalScaleRequest object
-	hsr := HorizontalScaleRequest{}
+	hsr := util.HorizontalScaleRequest{}
 	b := make([]byte, r.ContentLength)
 	r.Body.Read(b)
 	err := json.Unmarshal(b, &hsr)
@@ -37,15 +34,15 @@ func hscalereq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hscale(clientset, hsr.DeploymentNamespace, hsr.DeploymentName, hsr.NumReplicas)
-	
+	util.HScale(clientset, hsr.DeploymentNamespace, hsr.DeploymentName, hsr.Replicas)
+
 	fmt.Fprintf(w, "done")
 }
 
 // vertical: scale the resource allocation of some pod
 func vscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into VerticalScaleRequest object
-	vsr := VerticalScaleRequest{}
+	vsr := util.VerticalScaleRequest{}
 	b := make([]byte, r.ContentLength)
 	r.Body.Read(b)
 	err := json.Unmarshal(b, &vsr)
@@ -54,34 +51,7 @@ func vscalereq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-<<<<<<< HEAD:manuscaler/manuscaler.go
-	// create patch with number of replicas
-	patch, err := create_vpatch(vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
-	// patch pods/resize resource for given deployment
-	// derived from kubectl example: https://kubernetes.io/docs/tasks/configure-pod-container/resize-container-resources/
-	// I dont really get patch types but this only works with strategic
-	_, err = clientset.CoreV1().Pods("default").Patch(context.TODO(), vsr.PodName, k8stypes.StrategicMergePatchType, patch, metav1.PatchOptions{}, "resize")
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-=======
-	podMetricsList := GetPodMetrics(vsr.PodName)
-	fmt.Printf("items len: %d\n", len(podMetricsList.Items))
-	for _, v := range podMetricsList.Items {
-		fmt.Printf("%s\n", v.GetName())
-		fmt.Printf("%s\n", v.GetNamespace())
-		fmt.Printf("%vm\n", v.Containers[0].Usage.Cpu().MilliValue())
-		fmt.Printf("%vMi\n", v.Containers[0].Usage.Memory().Value()/(1024*1024))
-	}
-
-	vscale(clientset, vsr.PodName, vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
->>>>>>> 6131abce630d278e5a08b3db53d3bd687a021850:scalers/manuscaler/manuscaler.go
+	util.VScale(clientset, vsr.PodName, vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
 
 	fmt.Fprintf(w, "done")
 }

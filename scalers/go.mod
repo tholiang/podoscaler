@@ -1,6 +1,4 @@
-module scalers/main
-module scalers/manuscaler
-module scalers/util
+module github.com/tholiang/podoscaler/scalers
 
 go 1.24.1
 
