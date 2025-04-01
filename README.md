@@ -73,8 +73,6 @@ check status of pod with `kubectl get pod [POD NAME] --output=yaml`
 
 run `./hack/autoscaler-up`
 
-this will open a port to communicate to the app with
-
 to check deployment, (from another terminal):
 
 2. `kubectl get deployments`
