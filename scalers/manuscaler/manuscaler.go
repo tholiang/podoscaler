@@ -1,10 +1,12 @@
-package main
+package manuscaler
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"../scalerutil"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -24,7 +26,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 // horizontal: scale the number of pods of some deployment
-func hscale(w http.ResponseWriter, r *http.Request) {
+func hscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into HorizontalScaleRequest object
 	hsr := HorizontalScaleRequest{}
 	b := make([]byte, r.ContentLength)
@@ -35,25 +37,13 @@ func hscale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create patch with number of replicas
-	patch, err := create_hpatch(hsr.Replicas)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
-	// patch deployment/scale resource for given deployment
-	// derived from kubectl example: https://kubernetes.io/docs/reference/kubectl/generated/kubectl_patch/
-	_, err = clientset.AppsV1().Deployments(hsr.DeploymentNamespace).Patch(context.TODO(), hsr.DeploymentName, k8stypes.MergePatchType, patch, metav1.PatchOptions{}, "scale")
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
+	hscale(clientset, hsr.DeploymentNamespace, hsr.DeploymentName, hsr.NumReplicas)
+	
 	fmt.Fprintf(w, "done")
 }
 
 // vertical: scale the resource allocation of some pod
-func vscale(w http.ResponseWriter, r *http.Request) {
+func vscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into VerticalScaleRequest object
 	vsr := VerticalScaleRequest{}
 	b := make([]byte, r.ContentLength)
@@ -64,6 +54,7 @@ func vscale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+<<<<<<< HEAD:manuscaler/manuscaler.go
 	// create patch with number of replicas
 	patch, err := create_vpatch(vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
 	if err != nil {
@@ -79,6 +70,18 @@ func vscale(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, err)
 		return
 	}
+=======
+	podMetricsList := GetPodMetrics(vsr.PodName)
+	fmt.Printf("items len: %d\n", len(podMetricsList.Items))
+	for _, v := range podMetricsList.Items {
+		fmt.Printf("%s\n", v.GetName())
+		fmt.Printf("%s\n", v.GetNamespace())
+		fmt.Printf("%vm\n", v.Containers[0].Usage.Cpu().MilliValue())
+		fmt.Printf("%vMi\n", v.Containers[0].Usage.Memory().Value()/(1024*1024))
+	}
+
+	vscale(clientset, vsr.PodName, vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
+>>>>>>> 6131abce630d278e5a08b3db53d3bd687a021850:scalers/manuscaler/manuscaler.go
 
 	fmt.Fprintf(w, "done")
 }
@@ -103,7 +106,7 @@ func main() {
 
 	/* --- HTTPS SERVER INIT ---  */
 	http.HandleFunc("/", index)
-	http.HandleFunc("/hscale", hscale)
-	http.HandleFunc("/vscale", vscale)
+	http.HandleFunc("/hscale", hscalereq)
+	http.HandleFunc("/vscale", vscalereq)
 	http.ListenAndServe(":3001", nil)
 }

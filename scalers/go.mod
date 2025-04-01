@@ -1,4 +1,6 @@
-module manuscaler/main
+module scalers/main
+module scalers/manuscaler
+module scalers/util
 
 go 1.24.1
 
