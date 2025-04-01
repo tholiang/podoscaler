@@ -1,4 +1,4 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, task
 import random
 
 
@@ -56,8 +56,7 @@ class HotelWebsiteUser(HttpUser):
         cust_name = user_id
         num_room = "1"
 
-        # Note: In Locust, we'd typically send POST data in the body rather than URL params
-        data = {
+        params = {
             "inDate": in_date_str,
             "outDate": out_date_str,
             "hotelId": hotel_id,
@@ -67,12 +66,12 @@ class HotelWebsiteUser(HttpUser):
             "number": num_room,
         }
 
-        self.client.post("/reservation", data=data)
+        self.client.post("/reservation", params=params)
 
     def user_login(self):
         user_name, password = self.get_user()
-        data = {"username": user_name, "password": password}
-        self.client.post("/user", data=data)
+        params = {"username": user_name, "password": password}
+        self.client.post("/user", params=params)
 
     @task
     def mixed_workload(self):
