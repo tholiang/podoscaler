@@ -3,6 +3,11 @@ kind: ServiceAccount
 metadata:
   name: manuscaler
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: autoscaler
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -29,6 +34,9 @@ roleRef:
   kind: ClusterRole
   name: scaler
 subjects:
+  - kind: ServiceAccount
+    name: autoscaler
+    namespace: default
   - kind: ServiceAccount
     name: manuscaler
     namespace: default

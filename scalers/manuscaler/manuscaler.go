@@ -1,13 +1,12 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	k8stypes "k8s.io/apimachinery/pkg/types"
+	util "github.com/tholiang/podoscaler/scalers/util"
+
 	"k8s.io/client-go/kubernetes"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -24,9 +23,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 // horizontal: scale the number of pods of some deployment
-func hscale(w http.ResponseWriter, r *http.Request) {
+func hscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into HorizontalScaleRequest object
-	hsr := HorizontalScaleRequest{}
+	hsr := util.HorizontalScaleRequest{}
 	b := make([]byte, r.ContentLength)
 	r.Body.Read(b)
 	err := json.Unmarshal(b, &hsr)
@@ -35,27 +34,15 @@ func hscale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create patch with number of replicas
-	patch, err := create_hpatch(hsr.Replicas)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
+	util.HScale(clientset, hsr.DeploymentNamespace, hsr.DeploymentName, hsr.Replicas)
 
-	// patch deployment/scale resource for given deployment
-	// derived from kubectl example: https://kubernetes.io/docs/reference/kubectl/generated/kubectl_patch/
-	_, err = clientset.AppsV1().Deployments(hsr.DeploymentNamespace).Patch(context.TODO(), hsr.DeploymentName, k8stypes.MergePatchType, patch, metav1.PatchOptions{}, "scale")
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
 	fmt.Fprintf(w, "done")
 }
 
 // vertical: scale the resource allocation of some pod
-func vscale(w http.ResponseWriter, r *http.Request) {
+func vscalereq(w http.ResponseWriter, r *http.Request) {
 	// read request body into VerticalScaleRequest object
-	vsr := VerticalScaleRequest{}
+	vsr := util.VerticalScaleRequest{}
 	b := make([]byte, r.ContentLength)
 	r.Body.Read(b)
 	err := json.Unmarshal(b, &vsr)
@@ -64,21 +51,7 @@ func vscale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create patch with number of replicas
-	patch, err := create_vpatch(vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
-	// patch pods/resize resource for given deployment
-	// derived from kubectl example: https://kubernetes.io/docs/tasks/configure-pod-container/resize-container-resources/
-	// I dont really get patch types but this only works with strategic
-	_, err = clientset.CoreV1().Pods("default").Patch(context.TODO(), vsr.PodName, k8stypes.StrategicMergePatchType, patch, metav1.PatchOptions{}, "resize")
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
+	util.VScale(clientset, vsr.PodName, vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
 
 	fmt.Fprintf(w, "done")
 }
@@ -103,7 +76,7 @@ func main() {
 
 	/* --- HTTPS SERVER INIT ---  */
 	http.HandleFunc("/", index)
-	http.HandleFunc("/hscale", hscale)
-	http.HandleFunc("/vscale", vscale)
+	http.HandleFunc("/hscale", hscalereq)
+	http.HandleFunc("/vscale", vscalereq)
 	http.ListenAndServe(":3001", nil)
 }

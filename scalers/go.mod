@@ -1,4 +1,4 @@
-module autoscaler/main
+module github.com/tholiang/podoscaler/scalers
 
 go 1.24.1
 
