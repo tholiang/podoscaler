@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
@@ -12,63 +10,27 @@ import (
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
+	"time"
+	"strings"
 )
+
 
 /* --- GLOBAL VARS --- */
 var clientset kube_client.Interface
 var metrics_clientset *metrics_client.Clientset
-
-// test response
-func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "wsg")
-}
+const SCALE_MULTIPLIER = 1.2
 
 // horizontal: scale the number of pods of some deployment
-func hscale(w http.ResponseWriter, r *http.Request) {
-	// read request body into HorizontalScaleRequest object
-	hsr := HorizontalScaleRequest{}
-	b := make([]byte, r.ContentLength)
-	r.Body.Read(b)
-	err := json.Unmarshal(b, &hsr)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
+func hscale() {
 
-	// create patch with number of replicas
-	patch, err := create_hpatch(hsr.Replicas)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
-	// patch deployment/scale resource for given deployment
-	// derived from kubectl example: https://kubernetes.io/docs/reference/kubectl/generated/kubectl_patch/
-	_, err = clientset.AppsV1().Deployments(hsr.DeploymentNamespace).Patch(context.TODO(), hsr.DeploymentName, k8stypes.MergePatchType, patch, metav1.PatchOptions{}, "scale")
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-	fmt.Fprintf(w, "done")
 }
 
 // vertical: scale the resource allocation of some pod
-func vscale(w http.ResponseWriter, r *http.Request) {
-	// read request body into VerticalScaleRequest object
-	vsr := VerticalScaleRequest{}
-	b := make([]byte, r.ContentLength)
-	r.Body.Read(b)
-	err := json.Unmarshal(b, &vsr)
-	if err != nil {
-		fmt.Fprint(w, err)
-		return
-	}
-
+func vscale(vsr VerticalScaleRequest) {
 	// create patch with number of replicas
 	patch, err := create_vpatch(vsr.ContainerName, vsr.CpuRequests, vsr.CpuLimits)
 	if err != nil {
-		fmt.Fprint(w, err)
-		return
+		panic(err.Error())
 	}
 
 	// patch pods/resize resource for given deployment
@@ -76,11 +38,8 @@ func vscale(w http.ResponseWriter, r *http.Request) {
 	// I dont really get patch types but this only works with strategic
 	_, err = clientset.CoreV1().Pods("default").Patch(context.TODO(), vsr.PodName, k8stypes.StrategicMergePatchType, patch, metav1.PatchOptions{}, "resize")
 	if err != nil {
-		fmt.Fprint(w, err)
-		return
+		panic(err.Error())
 	}
-
-	fmt.Fprintf(w, "done")
 }
 
 func main() {
@@ -101,9 +60,32 @@ func main() {
 		panic(err.Error())
 	}
 
-	/* --- HTTPS SERVER INIT ---  */
-	http.HandleFunc("/", index)
-	http.HandleFunc("/hscale", hscale)
-	http.HandleFunc("/vscale", vscale)
-	http.ListenAndServe(":3001", nil)
+	for {
+		podMetricsList, err := metrics_clientset.MetricsV1beta1().PodMetricses("default").List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+
+		for _, v := range podMetricsList.Items {
+			if !strings.HasPrefix(v.GetName(), "testapp") { continue }
+			
+			fmt.Printf("Trying to resize %s...\n", v.GetName())
+			newRequest := int(float64(v.Containers[0].Usage.Cpu().MilliValue()) * SCALE_MULTIPLIER)
+			if newRequest < 10 {
+				newRequest = 10
+			}
+			fmt.Printf("current req: %d, new req: %d\n", v.Containers[0].Usage.Cpu().MilliValue(), newRequest)
+			container := v.Containers[0]
+			vsr := VerticalScaleRequest {
+				PodNamespace: v.GetNamespace(),
+				PodName:       v.GetName(),
+				ContainerName: container.Name,
+				CpuRequests:   fmt.Sprintf("%dm", newRequest),
+				CpuLimits:    fmt.Sprintf("%dm", newRequest),
+			}
+			vscale(vsr)
+			fmt.Println("Successfully resized!")
+		}
+		time.Sleep(5 * time.Second)
+	}
 }

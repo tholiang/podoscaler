@@ -4,4 +4,5 @@ docker image build -t manuscaler-img ./manuscaler
 kubectl apply -f ./manuscaler/rbac.yaml
 kubectl apply -f ./manuscaler/deployment.yaml
 kubectl expose deployment/manuscaler --type="NodePort" --port 3001
+sleep 3
 kubectl port-forward svc/manuscaler 3001
