@@ -26,7 +26,7 @@ func NewJaegerGRPCClient(addr string) (*JaegerGRPCClient, error) {
 	}, nil
 }
 
-func (jc *JaegerGRPCClient) GetLatencyMetrics(ctx context.Context, serviceName string, lookback time.Duration) (map[string]float64, error) {
+func (jc *JaegerGRPCClient) GetLatencyMetrics(ctx context.Context, serviceName string, lookback time.Duration) (float64, error) {
 	end := time.Now()
 	start := end.Add(-lookback)
 
@@ -38,10 +38,8 @@ func (jc *JaegerGRPCClient) GetLatencyMetrics(ctx context.Context, serviceName s
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to query traces: %w", err)
+		return 0, fmt.Errorf("failed to query traces: %w", err)
 	}
-
-	metrics := make(map[string]float64)
 
 	for {
 		traceResponse, err := resp.Recv()
@@ -49,7 +47,7 @@ func (jc *JaegerGRPCClient) GetLatencyMetrics(ctx context.Context, serviceName s
 			break
 		}
 		if err != nil {
-			return nil, fmt.Errorf("failed to receive trace: %w", err)
+			return 0, fmt.Errorf("failed to receive trace: %w", err)
 		}
 
 		// TODO: calculate something
@@ -57,5 +55,5 @@ func (jc *JaegerGRPCClient) GetLatencyMetrics(ctx context.Context, serviceName s
 		}
 	}
 
-	return metrics, nil
+	return 0, nil
 }
