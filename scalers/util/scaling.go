@@ -6,6 +6,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	kube_client "k8s.io/client-go/kubernetes"
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 func HScale(clientset kube_client.Interface, deploymentnamespace string, deploymentname string, numreplicas int32) {
@@ -68,4 +70,44 @@ func VScaleFromVSR(clientset kube_client.Interface, req VerticalScaleRequest) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetDeploymentAndReplicaCt(clientset kube_client.Interface, namespace string, podName string) (*appsv1.Deployment, int) {
+	ctx := context.TODO()
+
+	pod, err := clientset.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, ownerRef := range pod.OwnerReferences {
+		if ownerRef.Kind == "ReplicaSet" {
+			rs, err := clientset.AppsV1().ReplicaSets(namespace).Get(ctx, ownerRef.Name, metav1.GetOptions{})
+			if err != nil {
+				panic(err)
+			}
+
+			for _, rsOwnerRef := range rs.OwnerReferences {
+				if rsOwnerRef.Kind == "Deployment" {
+					deployment, err := clientset.AppsV1().Deployments(namespace).Get(ctx, rsOwnerRef.Name, metav1.GetOptions{})
+					if err != nil {
+						panic(err)
+					}
+					
+					labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector().String()
+
+					podList, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+						LabelSelector: labelSelector,
+					})
+					if err != nil {
+						panic(err)
+					}
+
+					return deployment, len(podList.Items)
+				}
+			}
+		}
+	}
+
+	return nil, -1
 }
