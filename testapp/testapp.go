@@ -16,7 +16,7 @@ var httpResponseTime = prometheus.NewHistogramVec(
 	prometheus.HistogramOpts{
 		Name:    "http_response_time_milliseconds",
 		Help:    "Response time in milliseconds",
-		Buckets: []float64{1, 2, 3, 4, 5, 10, 15, 25, 40, 50, 100, 250, 500, 1000, 2500, 5000, 10000},
+		Buckets: []float64{0.0001, 0.001, 0.01, 0.1, 1, 2, 3, 4, 5, 10, 15, 25, 40, 50, 100, 250, 500, 1000, 2500, 5000},
 	},
 	[]string{"path"}, // Label responses by endpoint
 )
