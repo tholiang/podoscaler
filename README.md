@@ -1,15 +1,24 @@
 # podoscaler
 
 ## prereqs
+
 - [docker](https://www.docker.com/)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ## setup
+
 1. clone repo
 2. `./hack/minikube-up.sh`
 
+## install Prometheus
+
+1. `helm repo add prometheus-community https://prometheus-community.github.io/helm-charts`
+2. `helm repo update`
+3. `helm install prometheus prometheus-community/kube-prometheus-stack`
+
 ## build and deploy dummy app (testapp) to minikube cluster
+
 1. `./hack/testapp-up`
 
 to check deployment:
@@ -22,6 +31,7 @@ to delete deployment:
 4. `./hack/testapp-down`
 
 ## build and deploy manuscaler to minikube cluster
+
 run `./hack/manuscaler-up`
 
 this will open a port to communicate to the app with
@@ -37,9 +47,11 @@ to delete deployment:
 5. `./hack/manuscaler-down`
 
 ## horizontially scaling testapp with manuscaler
+
 make a REST API call to
 `localhost:3001/hscale`
 with a json body
+
 ```
 {
     "deploymentnamespace": "default",
@@ -51,10 +63,12 @@ with a json body
 check pods with `kubectl get pods`
 
 ## vertically scaling testapp with manuscaler
+
 choose a pod from `kubectl get pods`
 then make a REST API call to
 `localhost:3001/vscale`
 with a json body
+
 ```
 {
     "podnamespace": "default",
@@ -64,10 +78,10 @@ with a json body
     "cpulimits": "900m"
 }
 ```
+
 (or another value instead of 900m; 900m means 90% of a CPU, use "1", "2",...for allocating 1, 2,... full cpus)
 
 check status of pod with `kubectl get pod [POD NAME] --output=yaml`
-
 
 ## build and deploy autoscaler to minikube cluster
 
