@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"strings"
 	"time"
 
 	util "github.com/tholiang/podoscaler/scalers/util"
@@ -17,8 +15,11 @@ import (
 /* --- GLOBAL VARS --- */
 var clientset kube_client.Interface
 var metrics_clientset *metrics_client.Clientset
-const SCALE_MULTIPLIER = 1.2
-const MAPS = 30 // CPU millivalue
+
+const SCALE_UP_MULTIPLIER = 1.2
+const SCALE_DOWN_MULTIPLIER = 0.8
+const MAX_APS = 30 // profiled per deployment
+const MIN_APS = 10 // CPU millivalue
 
 func main() {
 	/* --- K8S CLIENT GO CONFIG STUFF --- */
@@ -39,46 +40,49 @@ func main() {
 	}
 
 	for {
-		podMetricsList := util.GetPodMetrics(metrics_clientset)
+		// if SLO violated AND utilization of total CPU-requests is high
+		//      - if every pod is at maxAPS or each pod’s node has no more available CPU
+		hScale("deploymentName", "namespace", 1)
+		//      - else
+		vScaleUp("deploymentName", "namespace")
 
-		for _, v := range podMetricsList.Items {
-			// TODO: isolate all autoscaled deployments in a unique namespace
-			if !strings.HasPrefix(v.GetName(), "testapp") {
-				continue
-			}
+		// else if latency is too low OR utilization of total CPU-requests is low
+		//      - if every pod is at minAPS
+		hScale("deploymentName", "namespace", -1)
+		//      - else
+		vScaleDown("deploymentName", "namespace")
 
-			fmt.Printf("Trying to resize %s...\n", v.GetName())
-			container := v.Containers[0]
-			usage := container.Usage.Cpu().MilliValue()
-
-			if usage < MAPS {
-				// vertical scale
-				newRequest := int(float64(usage) * SCALE_MULTIPLIER)
-				if newRequest < 10 {
-					newRequest = 10
-				}
-				fmt.Printf("Current req: %d, new req: %d\n", usage, newRequest)
-				vsr := util.VerticalScaleRequest{
-					PodNamespace:  v.GetNamespace(),
-					PodName:       v.GetName(),
-					ContainerName: container.Name,
-					CpuRequests:   fmt.Sprintf("%dm", newRequest),
-					CpuLimits:     fmt.Sprintf("%dm", newRequest),
-				}
-				util.VScaleFromVSR(clientset, vsr)
-			} else {
-				// horizontal scale
-				deployment, replicaCt := util.GetDeploymentAndReplicaCt(clientset, v.GetNamespace(), v.GetName())
-				fmt.Printf("Current replica count %d. Adding one more...\n", replicaCt)
-				hsr := util.HorizontalScaleRequest{
-					DeploymentNamespace: deployment.GetNamespace(),
-					DeploymentName:      deployment.GetName(),
-					Replicas: int32(replicaCt + 1),
-				}
-				util.HScaleFromHSR(clientset, hsr)
-			}
-			fmt.Println("Successfully resized!")
-		}
 		time.Sleep(5 * time.Second)
 	}
+}
+
+// in-place scale up smallest pod in deployment
+func vScaleUp(deploymentName string, namespace string) {
+	pod, err := util.GetSmallestPodOfDeployment(clientset, metrics_clientset, deploymentName, namespace)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	util.VScalePod(pod, SCALE_UP_MULTIPLIER, clientset)
+}
+
+// in-place scale down largest pod in deployment
+func vScaleDown(deploymentName string, namespace string) {
+	pod, err := util.GetLargestPodOfDeployment(clientset, metrics_clientset, deploymentName, namespace)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	util.VScalePod(pod, SCALE_DOWN_MULTIPLIER, clientset)
+}
+
+// add or remove `delta` amount of replicas in deployment
+func hScale(deploymentName string, namespace string, delta int) {
+	replicaCt, err := util.GetReplicaCt(clientset, deploymentName, namespace)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Printf("Current replica count %d. Changing count to %d\n", replicaCt, replicaCt + delta)
+	util.ChangeReplicaCount(namespace, deploymentName, replicaCt + delta, clientset)
 }

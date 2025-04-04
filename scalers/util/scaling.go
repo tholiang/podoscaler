@@ -2,11 +2,12 @@ package util
 
 import (
 	"context"
+	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	kube_client "k8s.io/client-go/kubernetes"
-	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -25,7 +26,16 @@ func HScale(clientset kube_client.Interface, deploymentnamespace string, deploym
 	}
 }
 
-func HScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) {
+func ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) {
+	hsr := HorizontalScaleRequest{
+		DeploymentNamespace: namespace,
+		DeploymentName:      deploymentName,
+		Replicas: int32(replicaCt),
+	}
+	hScaleFromHSR(clientset, hsr)
+}
+
+func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) {
 	// create patch with number of replicas
 	patch, err := create_hpatch(req.Replicas)
 	if err != nil {
@@ -56,7 +66,25 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 	}
 }
 
-func VScaleFromVSR(clientset kube_client.Interface, req VerticalScaleRequest) {
+func VScalePod(pod *v1beta1.PodMetrics, SCALE_MULTIPLIER float64, clientset kube_client.Interface) {
+	usage := pod.Containers[0].Usage.Cpu().MilliValue()
+	newRequest := int(float64(usage) * SCALE_MULTIPLIER)
+	if newRequest < 10 {
+		newRequest = 10
+	}
+
+	fmt.Printf("Current req: %d, new req: %d\n", usage, newRequest)
+	vsr := VerticalScaleRequest{
+		PodNamespace:  pod.GetNamespace(),
+		PodName:       pod.GetName(),
+		ContainerName: pod.Containers[0].Name,
+		CpuRequests:   fmt.Sprintf("%dm", newRequest),
+		CpuLimits:     fmt.Sprintf("%dm", newRequest),
+	}
+	vScaleFromVSR(clientset, vsr)
+}
+
+func vScaleFromVSR(clientset kube_client.Interface, req VerticalScaleRequest) {
 	// create patch with number of replicas
 	patch, err := create_vpatch(req.ContainerName, req.CpuRequests, req.CpuLimits)
 	if err != nil {
@@ -72,42 +100,22 @@ func VScaleFromVSR(clientset kube_client.Interface, req VerticalScaleRequest) {
 	}
 }
 
-func GetDeploymentAndReplicaCt(clientset kube_client.Interface, namespace string, podName string) (*appsv1.Deployment, int) {
+func GetReplicaCt(clientset kube_client.Interface, deploymentName string, namespace string) (int, error) {
 	ctx := context.TODO()
 
-	pod, err := clientset.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+	deployment, err := clientset.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 	if err != nil {
-		panic(err)
+		return -1, fmt.Errorf("failed to get deployment: %w", err)
+	}
+	
+	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector().String()
+
+	podList, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		return -1, fmt.Errorf("failed to list pods: %w", err)
 	}
 
-	for _, ownerRef := range pod.OwnerReferences {
-		if ownerRef.Kind == "ReplicaSet" {
-			rs, err := clientset.AppsV1().ReplicaSets(namespace).Get(ctx, ownerRef.Name, metav1.GetOptions{})
-			if err != nil {
-				panic(err)
-			}
-
-			for _, rsOwnerRef := range rs.OwnerReferences {
-				if rsOwnerRef.Kind == "Deployment" {
-					deployment, err := clientset.AppsV1().Deployments(namespace).Get(ctx, rsOwnerRef.Name, metav1.GetOptions{})
-					if err != nil {
-						panic(err)
-					}
-					
-					labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector().String()
-
-					podList, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
-						LabelSelector: labelSelector,
-					})
-					if err != nil {
-						panic(err)
-					}
-
-					return deployment, len(podList.Items)
-				}
-			}
-		}
-	}
-
-	return nil, -1
+	return len(podList.Items), nil
 }
