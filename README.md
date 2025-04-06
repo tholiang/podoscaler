@@ -108,6 +108,3 @@ kubectl expose deployment/testapp --type="NodePort" --port 3000
 kubectl port-forward svc/testapp 3000
 kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://testapp:3000/; done"
 ```
-
-
-
