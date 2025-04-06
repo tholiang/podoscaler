@@ -18,6 +18,7 @@ rules:
       - apps
       - metrics.k8s.io
     resources:
+      - deployments
       - deployments/scale
       - pods/resize
       - pods

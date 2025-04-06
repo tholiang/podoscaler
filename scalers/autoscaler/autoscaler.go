@@ -81,7 +81,7 @@ func main() {
 
 				if len(congested_pods) > 0 {
 					fmt.Printf("Attempting to move %d pods to uncongested nodes\n", len(congested_pods))
-					err = util.MovePods(clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAME, congested_pods)
+					err = util.MovePods(clientset, DEPLOYMENT_NAMESPACE, DEPLOYMENT_NAME, congested_pods)
 					if err != nil {
 						fmt.Printf("failed to move pods: %s\n", err.Error())
 						continue
@@ -104,7 +104,7 @@ func main() {
 
 				// hscale if needed
 				if podSize == MAX_APS {
-					idealReplicaCt := int(math.Ceil(float64(totalMilliUsage) / float64(numReplicas)))
+					idealReplicaCt := int(math.Ceil(float64(totalMilliUsage) / float64(MAX_APS)))
 					fmt.Printf("hscaling to %d replicas\n", idealReplicaCt)
 					err := hScale(idealReplicaCt - numReplicas)
 					if err != nil {
@@ -144,7 +144,7 @@ func main() {
 
 				// hscale if needed
 				// TODO: may need to check if theres space on available nodes for vscale after
-				idealReplicaCt := int(math.Ceil(float64(totalMilliUsage) / float64(numReplicas)))
+				idealReplicaCt := int(math.Ceil(float64(totalMilliUsage) / float64(MAX_APS)))
 				if idealReplicaCt < numReplicas {
 					fmt.Printf("HScaling to %d replicas\n", idealReplicaCt)
 					err := hScale(idealReplicaCt - numReplicas)

@@ -38,11 +38,16 @@ func GetPodSize(clientset kube_client.Interface, deploymentName, namespace strin
 		return 0, err
 	}
 
-	if podList.Size() == 0 {
+	if len(podList.Items) == 0 {
 		return 0, fmt.Errorf("no pods found")
 	}
 
-	return podList.Items[0].Spec.Resources.Requests.Cpu().MilliValue(), nil
+	if len(podList.Items[0].Spec.Containers) == 0 {
+		return 0, fmt.Errorf("no ready pods")
+	}
+
+	alloc := podList.Items[0].Spec.Containers[0].Resources.Requests["cpu"]
+	return alloc.MilliValue(), nil
 }
 
 func GetPodMetrics(metricsClient metrics_client.Clientset, namespace string, podName string) (*v1beta1.PodMetrics, error) {
@@ -84,7 +89,7 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 		sum += float64(usage) / float64(allocval)
 	}
 
-	return sum / float64(podList.Size()), nil
+	return sum / float64(len(podList.Items)), nil
 }
 
 func GetSmallestPodOfDeployment(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string) (*v1beta1.PodMetrics, error) {
@@ -187,7 +192,7 @@ func GetCongestedNodes(clientset kube_client.Interface, congestionThreshold floa
 		capacity := node.Status.Capacity.Cpu().MilliValue()
 		allocatable := node.Status.Allocatable.Cpu().MilliValue()
 
-		if float64(allocatable)/float64(capacity) > 1-congestionThreshold {
+		if float64(allocatable)/float64(capacity) < 1-congestionThreshold {
 			congested_nodes = append(congested_nodes, node.Name)
 		}
 	}
