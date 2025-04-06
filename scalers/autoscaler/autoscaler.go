@@ -61,14 +61,13 @@ func main() {
 		fmt.Println("---New Scaling Round---")
 
 		status := getSLOStatus()
+		utilization, err := util.GetAverageUtilization(clientset, metrics_clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
+		if err != nil {
+			fmt.Printf("failed to get average utilization: %s\n", err.Error())
+			continue
+		}
 
 		if status > 0 {
-			utilization, err := util.GetAverageUtilization(clientset, metrics_clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
-			if err != nil {
-				fmt.Printf("failed to get average utilization: %s\n", err.Error())
-				continue
-			}
-
 			fmt.Printf("Over SLO, CPU utilization at %f\n", utilization)
 
 			if utilization > 1.0 {
@@ -125,13 +124,7 @@ func main() {
 				}
 			}
 		} else if status < 0 {
-			utilization, err := util.GetAverageUtilization(clientset, metrics_clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
-			if err != nil {
-				fmt.Printf("failed to get average utilization: %s\n", err.Error())
-				continue
-			}
-
-			fmt.Printf("Over SLO, CPU utilization at %f\n", utilization)
+			fmt.Printf(" Below SLO, CPU utilization at %f\n", utilization)
 
 			if utilization < DOWNSCALE_UTILIZATION_THRESHOLD {
 				fmt.Println("---Downscaling!!---")
