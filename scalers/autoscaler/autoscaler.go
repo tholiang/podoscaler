@@ -21,6 +21,7 @@ var metrics_clientset *metrics_client.Clientset
 const PROMETHEUS_URL = "http://10.107.52.199:9090" // change to ip of svc "prometheus-kube-prometheus-prometheus"
 
 const LATENCY_SLO = 10 // ms
+const SLO_LOWER_THRESHOLD = 0.85
 const DEPLOYMENT_NAME = "testapp"
 const DEPLOYMENT_NAMESPACE = "default"
 const SERVICE_NAME = "testapp-service"
@@ -173,15 +174,21 @@ func main() {
 
 // return 1 if above SLO, 0 if at SLO, and -1 if below SLO
 func getSLOStatus() int {
-	// prometheus_metrics, err := util.GetLatencyMetrics(SERVICE_NAME, 0.95)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	return 0
-	// }
+	prometheus_metrics, err := util.GetLatencyMetrics(SERVICE_NAME, 0.9)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0
+	}
 
-	// fmt.Println(prometheus_metrics[SERVICE_ENDPOINT])
+	dist = prometheus_metrics[SERVICE_ENDPOINT] / LATENCY_SLO
+	
+	if dist > 1 {
+		return 1
+	} else if dist < SLO_LOWER_THRESHOLD {
+		return -1
+	}
 
-	return 1
+	return 0
 }
 
 // in-place scale all pods to
