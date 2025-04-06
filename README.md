@@ -20,6 +20,7 @@
 5. install linkerd on cluster metrics `linkerd viz install | kubectl apply -f -`
 6. access linkerd dashboard `linkerd viz dashboard`
 7. get prometheus url in linkerd-viz namespace
+8. setup nginx-ingress-controller to auto inject `linkerd inject <(kubectl get deploy -n ingress-nginx ingress-nginx-controller -o yaml) | kubectl apply -f -`
 
 ## build and deploy dummy app (testapp) to minikube cluster
 
