@@ -73,6 +73,7 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 	}
 
 	sum := 0.0
+	alive_pod_count := 0
 	for _, pod := range podList.Items {
 		alloc := pod.Spec.Containers[0].Resources.Requests["cpu"]
 		allocval := alloc.MilliValue()
@@ -82,6 +83,7 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 			fmt.Printf("Warning: could not get metrics for pod %s: %v\n", pod.Name, err)
 			continue
 		}
+		alive_pod_count += 1
 
 		usage := podMetrics.Containers[0].Usage.Cpu().MilliValue()
 		fmt.Printf("pod %s\n- alloc: %dm\n- usage: %dm\n", pod.Name, allocval, usage)
@@ -89,7 +91,7 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 		sum += float64(usage) / float64(allocval)
 	}
 
-	return sum / float64(len(podList.Items)), nil
+	return sum / float64(alive_pod_count), nil
 }
 
 func GetSmallestPodOfDeployment(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string) (*v1beta1.PodMetrics, error) {
