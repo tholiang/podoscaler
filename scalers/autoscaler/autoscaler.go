@@ -18,7 +18,7 @@ import (
 var clientset kube_client.Interface
 var metrics_clientset *metrics_client.Clientset
 
-const PROMETHEUS_URL = "http://10.107.52.199:9090" // change to ip of svc "prometheus-kube-prometheus-prometheus"
+const PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090" // change to ip of svc "prometheus-kube-prometheus-prometheus"
 
 const LATENCY_SLO = 10 // ms
 const SLO_LOWER_THRESHOLD = 0.85
@@ -180,7 +180,8 @@ func getSLOStatus() int {
 		return 0
 	}
 
-	dist = prometheus_metrics[SERVICE_ENDPOINT] / LATENCY_SLO
+	fmt.Printf("90th percentile latency: %d\n", prometheus_metrics[SERVICE_ENDPOINT])
+	dist := prometheus_metrics[SERVICE_ENDPOINT] / LATENCY_SLO
 	
 	if dist > 1 {
 		return 1

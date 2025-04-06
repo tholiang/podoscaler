@@ -44,3 +44,18 @@ subjects:
     namespace: default
 # all from https://github.com/kubernetes/autoscaler/blob/93a37e47308ad58275e909bfeaa0347b2ef6b4ba/vertical-pod-autoscaler/deploy/vpa-rbac.yaml
 # https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata:
+  name: autoscaler-policy
+  namespace: linkerd-viz
+spec:
+  targetRef:
+    group: policy.linkerd.io
+    kind: Server
+    name: prometheus-admin
+  requiredAuthenticationRefs:
+    - name: autoscaler
+      kind: ServiceAccount
+      namespace: default

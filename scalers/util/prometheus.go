@@ -29,7 +29,7 @@ func GetLatencyMetrics(service_name string, percentile float64) (map[string]floa
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	result, warnings, err := v1api.Query(ctx, fmt.Sprintf("histogram_quantile(%f,rate(http_response_time_milliseconds_bucket{}[10m]))", percentile), time.Now())
+	result, warnings, err := v1api.Query(ctx, fmt.Sprintf("histogram_quantile(%f, rate(response_latency_ms_bucket{app=\"testapp\", client_id=\"ingress-nginx.ingress-nginx.serviceaccount.identity.linkerd.cluster.local\"}[1m]))", percentile), time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("Error querying prometheus: %v", err)
 	}
