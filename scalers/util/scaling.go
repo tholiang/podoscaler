@@ -8,46 +8,71 @@ import (
 	k8stypes "k8s.io/apimachinery/pkg/types"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
-	"k8s.io/apimachinery/pkg/labels"
 )
 
-func HScale(clientset kube_client.Interface, deploymentnamespace string, deploymentname string, numreplicas int32) {
+func HScale(clientset kube_client.Interface, deploymentnamespace string, deploymentname string, numreplicas int32) error {
 	// create patch with number of replicas
 	patch, err := create_hpatch(numreplicas)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// patch deployment/scale resource for given deployment
 	// derived from kubectl example: https://kubernetes.io/docs/reference/kubectl/generated/kubectl_patch/
 	_, err = clientset.AppsV1().Deployments(deploymentnamespace).Patch(context.TODO(), deploymentname, k8stypes.MergePatchType, patch, metav1.PatchOptions{}, "scale")
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) {
+func ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
 	hsr := HorizontalScaleRequest{
 		DeploymentNamespace: namespace,
 		DeploymentName:      deploymentName,
-		Replicas: int32(replicaCt),
+		Replicas:            int32(replicaCt),
 	}
-	hScaleFromHSR(clientset, hsr)
+	return hScaleFromHSR(clientset, hsr)
 }
 
-func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) {
+func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) error {
 	// create patch with number of replicas
 	patch, err := create_hpatch(req.Replicas)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// patch deployment/scale resource for given deployment
 	// derived from kubectl example: https://kubernetes.io/docs/reference/kubectl/generated/kubectl_patch/
 	_, err = clientset.AppsV1().Deployments(req.DeploymentNamespace).Patch(context.TODO(), req.DeploymentName, k8stypes.MergePatchType, patch, metav1.PatchOptions{}, "scale")
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
+}
+
+func MovePods(clientset kube_client.Interface, deploymentnamespace string, deploymentname string, podsToMove []string) error {
+	numPods, err := GetReplicaCt(clientset, deploymentname, deploymentnamespace)
+	if err != nil {
+		return err
+	}
+
+	err = ChangeReplicaCount(deploymentnamespace, deploymentname, numPods+len(podsToMove), clientset)
+	if err != nil {
+		return fmt.Errorf("no space to move pods")
+	}
+
+	err = nil
+	for _, podName := range podsToMove {
+		delerr := clientset.CoreV1().Pods(deploymentnamespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
+		if delerr != nil {
+			err = fmt.Errorf("failed to delete all pods")
+		}
+	}
+
+	return err
 }
 
 func VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, cpulimits string) {
@@ -101,18 +126,7 @@ func vScaleFromVSR(clientset kube_client.Interface, req VerticalScaleRequest) {
 }
 
 func GetReplicaCt(clientset kube_client.Interface, deploymentName string, namespace string) (int, error) {
-	ctx := context.TODO()
-
-	deployment, err := clientset.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
-	if err != nil {
-		return -1, fmt.Errorf("failed to get deployment: %w", err)
-	}
-	
-	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector().String()
-
-	podList, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
-		LabelSelector: labelSelector,
-	})
+	podList, err := GetPodList(clientset, deploymentName, namespace)
 	if err != nil {
 		return -1, fmt.Errorf("failed to list pods: %w", err)
 	}

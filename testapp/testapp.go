@@ -2,14 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"math/rand/v2"
 	"net/http"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus/collectors"
-
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var httpResponseTime = prometheus.NewHistogramVec(
@@ -37,22 +34,33 @@ func noop(w http.ResponseWriter, r *http.Request) {
 	httpResponseTime.WithLabelValues(r.URL.Path).Observe(duration)
 }
 
+func wasteCPU() {
+	randomsum := 0
+	for {
+		randomsum += rand.IntN(100)
+	}
+}
+
 func main() {
-	reg := prometheus.NewRegistry()
+	// reg := prometheus.NewRegistry()
 
-	// Add go runtime metrics, process collectors, and http response time
-	reg.MustRegister(
-		collectors.NewGoCollector(),
-		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
-		httpResponseTime,
-	)
+	// // Add go runtime metrics, process collectors, and http response time
+	// reg.MustRegister(
+	// 	collectors.NewGoCollector(),
+	// 	collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
+	// 	httpResponseTime,
+	// )
 
-	// handle prometheus scraping
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+	// // handle prometheus scraping
+	// http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
 
-	http.HandleFunc("/", index)
-	http.HandleFunc("/noop", noop)
+	// http.HandleFunc("/", index)
+	// http.HandleFunc("/noop", noop)
 
-	log.Println("testapp server running on :3000")
-	http.ListenAndServe(":3000", nil)
+	// log.Println("testapp server running on :3000")
+	// http.ListenAndServe(":3000", nil)
+	for {
+		go wasteCPU()
+		time.Sleep(100 * time.Millisecond)
+	}
 }
