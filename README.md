@@ -11,11 +11,15 @@
 1. clone repo
 2. `./hack/minikube-up.sh`
 
-## install Prometheus
+## install linkerd and ingress
 
-1. `helm repo add prometheus-community https://prometheus-community.github.io/helm-charts`
-2. `helm repo update`
-3. `helm install prometheus prometheus-community/kube-prometheus-stack`
+1. install linkerd cli using brew or look at instructions `https://linkerd.io/2-edge/getting-started/`
+2. install linkerd crds `linkerd install --crds | kubectl apply -f -`
+3. install linkerd `linkerd install | kubectl apply -f -`
+4. make sure ingress addon is enabled `minikube addons enable ingress`
+5. install linkerd on cluster metrics `linkerd viz install | kubectl apply -f -`
+6. access linkerd dashboard `linkerd viz dashboard`
+7. get prometheus url in linkerd-viz namespace
 
 ## build and deploy dummy app (testapp) to minikube cluster
 
@@ -103,3 +107,4 @@ kubectl expose deployment/testapp --type="NodePort" --port 3000
 kubectl port-forward svc/testapp 3000
 kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://testapp:3000/; done"
 ```
+

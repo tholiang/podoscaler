@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 eval $(minikube -p minikube docker-env)
 docker image build -t manuscaler-img --build-arg SRC_DIR=./manuscaler ./scalers
 kubectl apply -f ./deploy/deploy-manuscaler.yaml
