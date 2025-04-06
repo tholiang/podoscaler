@@ -14,7 +14,7 @@ import (
 )
 
 // return map of endpoint path to percentile latency
-func GetLatencyMetrics(service_name string, percentile float64) (map[string]float64, error) {
+func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	prom_url := os.Getenv("PROMETHEUS_URL")
 	if prom_url == "" {
 		return nil, errors.New("PROMETHEUS_URL env not set")
@@ -44,10 +44,7 @@ func GetLatencyMetrics(service_name string, percentile float64) (map[string]floa
 			return nil, errors.New("No results returned")
 		}
 		for _, sample := range vec {
-			sample_map := metricToMap(sample.Metric)
-			if sample_map["service"] == service_name && sample_map["path"] != "" {
-				metric_map[sample_map["path"]] = float64(sample.Value)
-			}
+			metric_map[deployment_name] = float64(sample.Value)
 		}
 	} else {
 		return nil, errors.New("Wrong result type")
