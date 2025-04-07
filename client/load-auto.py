@@ -5,10 +5,10 @@ import numpy as np
 import os
 from collections import defaultdict
 
-ENDPOINT = "http://localhost:3000/noop"
+ENDPOINT = "http://localhost/noop"
 LOG_FILE = "logs/response_times.csv"
-SAMPLES_PER_STEP = 200
-SLEEP_STEPS = list(range(30, -1, -3))  # 100 → 0 in steps of 10
+SAMPLES_PER_STEP = 100
+SLEEP_STEPS = list(range(50, -1, -10))  # 100 → 0 in steps of 10
 
 # Setup log file
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)

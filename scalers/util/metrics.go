@@ -91,6 +91,9 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 		sum += float64(usage) / float64(allocval)
 	}
 
+	if alive_pod_count == 0 {
+		return 0, nil
+	}
 	return sum / float64(alive_pod_count), nil
 }
 

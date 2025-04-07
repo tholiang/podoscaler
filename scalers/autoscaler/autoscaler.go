@@ -20,7 +20,7 @@ var metrics_clientset *metrics_client.Clientset
 
 const PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090" // change to ip of svc "prometheus-kube-prometheus-prometheus"
 
-const LATENCY_SLO = 10 // ms
+const LATENCY_SLO = 100 // ms
 const SLO_LOWER_THRESHOLD = 0.85
 const DEPLOYMENT_NAME = "testapp"
 const DEPLOYMENT_NAMESPACE = "default"
@@ -32,7 +32,7 @@ const DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
 const SCALE_UP_MULTIPLIER = 1.2
 const SCALE_DOWN_MULTIPLIER = 0.8
-const MAX_APS = 300 // profiled per deployment
+const MAX_APS = 500 // profiled per deployment
 const MIN_APS = 100 // CPU millivalue
 
 func main() {
@@ -200,8 +200,9 @@ func vScaleTo(millis int64) error {
 	}
 
 	reqstr := fmt.Sprintf("%dm", millis)
+	limitstr := fmt.Sprintf("%dm", millis + 100)
 	for _, pod := range podList.Items {
-		util.VScale(clientset, pod.Name, pod.Spec.Containers[0].Name, reqstr, "1000000m")
+		util.VScale(clientset, pod.Name, pod.Spec.Containers[0].Name, reqstr, limitstr)
 	}
 
 	return err
