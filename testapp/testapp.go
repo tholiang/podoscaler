@@ -15,15 +15,15 @@ func index(w http.ResponseWriter, r *http.Request) {
 func noop(w http.ResponseWriter, r *http.Request) {
 	b := make([]byte, r.ContentLength)
 	r.Body.Read(b)
-	w.Write(b)
-
 	go wasteCPU()
+	w.Write(b)
 }
 
 func wasteCPU() {
+	sum := 0
 	start := time.Now()
 	for time.Since(start) < 10*time.Second {
-		_ = rand.Intn(100)
+		sum += rand.Intn(100)
 	}
 }
 

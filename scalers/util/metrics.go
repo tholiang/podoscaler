@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -46,7 +47,8 @@ func GetPodSize(clientset kube_client.Interface, deploymentName, namespace strin
 		return 0, fmt.Errorf("no ready pods")
 	}
 
-	alloc := podList.Items[0].Spec.Containers[0].Resources.Requests["cpu"]
+	container := GetContainerByName(deploymentName, podList.Items[0].Spec.Containers)
+	alloc := container.Resources.Requests["cpu"]
 	return alloc.MilliValue(), nil
 }
 
@@ -75,7 +77,8 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 	sum := 0.0
 	alive_pod_count := 0
 	for _, pod := range podList.Items {
-		alloc := pod.Spec.Containers[0].Resources.Requests["cpu"]
+		container := GetContainerByName(deploymentName, pod.Spec.Containers)
+		alloc := container.Resources.Requests["cpu"]
 		allocval := alloc.MilliValue()
 
 		podMetrics, err := metricsClient.MetricsV1beta1().PodMetricses(namespace).Get(ctx, pod.Name, metav1.GetOptions{})
@@ -85,7 +88,8 @@ func GetAverageUtilization(clientset kube_client.Interface, metricsClient *metri
 		}
 		alive_pod_count += 1
 
-		usage := podMetrics.Containers[0].Usage.Cpu().MilliValue()
+		metric_container := GetMetricContainerByName(deploymentName, podMetrics.Containers)
+		usage := metric_container.Usage.Cpu().MilliValue()
 		fmt.Printf("pod %s\n- alloc: %dm\n- usage: %dm\n", pod.Name, allocval, usage)
 
 		sum += float64(usage) / float64(allocval)
@@ -118,8 +122,9 @@ func GetSmallestPodOfDeployment(clientset kube_client.Interface, metricsClient *
 			// log.Printf("Warning: could not get metrics for pod %s: %v", pod.Name, err)
 			continue
 		}
-
-		usage := podMetrics.Containers[0].Usage.Cpu().MilliValue()
+		
+		metricContainer := GetMetricContainerByName(deploymentName,  podMetrics.Containers)
+		usage := metricContainer.Usage.Cpu().MilliValue()
 		if usage < smallestCPUUsageMilli {
 			smallestCPUUsageMilli = usage
 			smallestPod = podMetrics
@@ -151,7 +156,8 @@ func GetLargestPodOfDeployment(clientset kube_client.Interface, metricsClient *m
 			continue
 		}
 
-		usage := podMetrics.Containers[0].Usage.Cpu().MilliValue()
+		metricContainer := GetMetricContainerByName(deploymentName,  podMetrics.Containers)
+		usage := metricContainer.Usage.Cpu().MilliValue()
 		if usage > largestCPUUsageMilli {
 			largestCPUUsageMilli = usage
 			largestPod = podMetrics
@@ -203,4 +209,24 @@ func GetCongestedNodes(clientset kube_client.Interface, congestionThreshold floa
 	}
 
 	return congested_nodes, nil
+}
+
+func GetContainerByName(name string, containers []v1.Container) *v1.Container {
+	for _, container := range containers {
+		if strings.HasPrefix(container.Name, name) {
+			return &container
+		}
+	}
+
+	return nil
+}
+
+func GetMetricContainerByName(name string, containers []v1beta1.ContainerMetrics) *v1beta1.ContainerMetrics {
+	for _, container := range containers {
+		if strings.HasPrefix(container.Name, name) {
+			return &container
+		}
+	}
+
+	return nil
 }

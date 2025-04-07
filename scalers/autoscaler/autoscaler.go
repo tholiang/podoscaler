@@ -116,7 +116,7 @@ func main() {
 				}
 
 				// finally vscale to ideal size
-				newPodSize := min(MAX_APS, totalMilliUsage/int64(numReplicas))
+				newPodSize := max(MIN_APS, min(MAX_APS, totalMilliUsage/int64(numReplicas)))
 				fmt.Printf("vscaling to %dm CPU\n", newPodSize)
 				err = vScaleTo(newPodSize)
 				if err != nil {
@@ -157,7 +157,7 @@ func main() {
 				}
 
 				// finally vscale to ideal size
-				newPodSize := min(MAX_APS, totalMilliUsage/int64(numReplicas))
+				newPodSize := max(MIN_APS, min(MAX_APS, totalMilliUsage/int64(numReplicas)))
 				fmt.Printf("VScaling to %dm CPU\n", newPodSize)
 				err = vScaleTo(newPodSize)
 				if err != nil {
@@ -202,7 +202,8 @@ func vScaleTo(millis int64) error {
 	reqstr := fmt.Sprintf("%dm", millis)
 	limitstr := fmt.Sprintf("%dm", millis + 100)
 	for _, pod := range podList.Items {
-		util.VScale(clientset, pod.Name, pod.Spec.Containers[0].Name, reqstr, limitstr)
+		container := util.GetContainerByName(DEPLOYMENT_NAME, pod.Spec.Containers)
+		util.VScale(clientset, pod.Name, container.Name, reqstr, limitstr)
 	}
 
 	return err

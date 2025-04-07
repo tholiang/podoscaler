@@ -92,7 +92,8 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 }
 
 func VScalePod(pod *v1beta1.PodMetrics, SCALE_MULTIPLIER float64, clientset kube_client.Interface) {
-	usage := pod.Containers[0].Usage.Cpu().MilliValue()
+	container := GetMetricContainerByName("testapp", pod.Containers)
+	usage := container.Usage.Cpu().MilliValue()
 	newRequest := int(float64(usage) * SCALE_MULTIPLIER)
 	if newRequest < 10 {
 		newRequest = 10
@@ -102,7 +103,7 @@ func VScalePod(pod *v1beta1.PodMetrics, SCALE_MULTIPLIER float64, clientset kube
 	vsr := VerticalScaleRequest{
 		PodNamespace:  pod.GetNamespace(),
 		PodName:       pod.GetName(),
-		ContainerName: pod.Containers[0].Name,
+		ContainerName: container.Name,
 		CpuRequests:   fmt.Sprintf("%dm", newRequest),
 		CpuLimits:     fmt.Sprintf("%dm", newRequest),
 	}
