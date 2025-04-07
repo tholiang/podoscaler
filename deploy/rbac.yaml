@@ -52,9 +52,8 @@ metadata:
   namespace: linkerd-viz
 spec:
   targetRef:
-    group: policy.linkerd.io
-    kind: Server
-    name: prometheus-admin
+    kind: Namespace
+    name: linkerd-viz
   requiredAuthenticationRefs:
     - name: autoscaler
       kind: ServiceAccount

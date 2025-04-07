@@ -174,14 +174,14 @@ func main() {
 
 // return 1 if above SLO, 0 if at SLO, and -1 if below SLO
 func getSLOStatus() int {
-	prometheus_metrics, err := util.GetLatencyMetrics(SERVICE_NAME, 0.9)
+	prometheus_metrics, err := util.GetLatencyMetrics(DEPLOYMENT_NAME, 0.9)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 0
 	}
 
-	fmt.Printf("90th percentile latency: %d\n", prometheus_metrics[SERVICE_ENDPOINT])
-	dist := prometheus_metrics[SERVICE_ENDPOINT] / LATENCY_SLO
+	fmt.Printf("90th percentile latency: %f\n", prometheus_metrics[DEPLOYMENT_NAME])
+	dist := prometheus_metrics[DEPLOYMENT_NAME] / LATENCY_SLO
 	
 	if dist > 1 {
 		return 1
