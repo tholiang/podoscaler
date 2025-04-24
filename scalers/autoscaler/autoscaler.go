@@ -115,7 +115,7 @@ func main() {
 				hScale(idealReplicaCt)
 			}
 
-			hysteresisMargin := 1 - DOWNSCALE_UTILIZATION_THRESHOLD
+			hysteresisMargin := 1 / DOWNSCALE_UTILIZATION_THRESHOLD
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
 			vScaleTo(newRequests)
 
