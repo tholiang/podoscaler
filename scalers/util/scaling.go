@@ -34,11 +34,11 @@ func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) 
 	return nil
 }
 
-func VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) {
+func VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
 	// create patch with number of replicas
 	patch, err := create_vpatch(containername, cpurequests, "100") // limit arbitrarily set to 100 CPU, idk if this works
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// patch pods/resize resource for given deployment
@@ -46,6 +46,8 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 	// I dont really get patch types but this only works with strategic
 	_, err = clientset.CoreV1().Pods("default").Patch(context.TODO(), podname, k8stypes.StrategicMergePatchType, patch, metav1.PatchOptions{}, "resize")
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }

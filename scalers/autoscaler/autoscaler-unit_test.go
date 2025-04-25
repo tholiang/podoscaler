@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"slices"
 	"testing"
 
 	util "github.com/tholiang/podoscaler/scalers/util"
@@ -40,16 +40,24 @@ func TestBasicStable(t *testing.T) {
 
 func TestBasicVscaleUp(t *testing.T) {
 	// setup
-	vscaleCounter := 0
-	correctVscaleCounter := 1
+	vscaleCounters := map[string]int{}
+	correctVscaleCounters := map[string]int{
+		"pod1": 1,
+		"pod2": 1,
+		"pod3": 1,
+	}
 
 	mm := util.CreateSimpleMockMetrics()
 	mm.MockGetLatencyMetrics = util.SimpleOverLatencyMetrics
 	mm.MockGetDeploymentUtilAndAlloc = util.SimpleOverDeploymentUtilAndAlloc
 	mm.MockGetNodeAllocableAndCapacity = util.SimpleCongestedNodeAllocableAndCapacity
 	mockVScale := func(clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
-		fmt.Println("here")
-		vscaleCounter++
+		_, ok := vscaleCounters[podname]
+		if !ok {
+			vscaleCounters[podname] = 1
+		} else {
+			vscaleCounters[podname]++
+		}
 		return nil
 	}
 	mockChangeReplicaCount := func(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
@@ -72,7 +80,15 @@ func TestBasicVscaleUp(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 
-	if vscaleCounter != correctVscaleCounter {
-		t.Errorf("vscaled %d times, expected %d", vscaleCounter, correctVscaleCounter)
+	testkeys := util.GetStringIntMapKeys(vscaleCounters)
+	correctkeys := util.GetStringIntMapKeys(correctVscaleCounters)
+	if !slices.Equal(testkeys, correctkeys) {
+		t.Errorf("incorrect pods were scaled")
+	}
+
+	for _, k := range testkeys {
+		if vscaleCounters[k] != correctVscaleCounters[k] {
+			t.Errorf("incorrect number of vscales for pod %s, expected %d vscales, got %d", k, vscaleCounters[k], correctVscaleCounters[k])
+		}
 	}
 }

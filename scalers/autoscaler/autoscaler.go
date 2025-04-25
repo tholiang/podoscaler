@@ -120,6 +120,7 @@ func (a *Autoscaler) RunRound() error {
 			hasNoCongested = false
 			currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 			additionalAllocation := newRequests - currentRequests
+			fmt.Printf("%d %d\n", additionalAllocation, allocatable)
 			if additionalAllocation > allocatable {
 				// TODO: move pod greedily
 			} else {
