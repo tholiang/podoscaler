@@ -21,6 +21,7 @@ type MockMetrics struct {
 	DeploymentNamespace string
 	Pods                MockPodList
 	Latency             float64
+	NodeUsages          map[string]int64
 	NodeAllocables      map[string]int64
 	NodeCapacities      map[string]int64
 	DeploymentUtil      int64
@@ -30,6 +31,7 @@ type MockMetrics struct {
 	MockGetMetricsClientset            func(m *MockMetrics, config *rest.Config) (*metrics_client.Clientset, error)
 	MockGetPodListForDeployment        func(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error)
 	MockGetDeploymentUtilAndAlloc      func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error)
+	MockGetNodeUsageAndCapacity        func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error)
 	MockGetNodeAllocableAndCapacity    func(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error)
 	MockGetLatencyMetrics              func(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error)
 	MockVScale                         func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error
@@ -52,6 +54,9 @@ func (m *MockMetrics) GetPodListForDeployment(clientset kube_client.Interface, d
 }
 func (m *MockMetrics) GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
 	return m.MockGetDeploymentUtilAndAlloc(m, clientset, metricsClient, deploymentName, namespace, podList)
+}
+func (m *MockMetrics) GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	return m.MockGetNodeUsageAndCapacity(m, clientset, metricsClient, nodeName)
 }
 func (m *MockMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
 	return m.MockGetNodeAllocableAndCapacity(m, clientset, nodeName)

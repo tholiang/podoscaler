@@ -161,6 +161,19 @@ func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface,
 	return m.DeploymentUtil, GetDeploymentAlloc(m.Pods), nil
 }
 
+func MockNodeUsageAndCapacity(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	usage, ok := m.NodeUsages[nodeName]
+	if !ok {
+		return 0, 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
+	}
+	cap, ok := m.NodeCapacities[nodeName]
+	if !ok {
+		return 0, 0, fmt.Errorf("couldn't find capacity for node %s", nodeName)
+	}
+
+	return usage, cap, nil
+}
+
 func MockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error) {
 	alloc, ok := m.NodeAllocables[nodeName]
 	if !ok {
@@ -236,6 +249,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetAllDeploymentsFromNamespace = MockAllDeploymentsFromNamespace
 	mm.MockGetPodListForDeployment = MockPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = MockDeploymentUtilAndAlloc
+	mm.MockGetNodeUsageAndCapacity = MockNodeUsageAndCapacity
 	mm.MockGetNodeAllocableAndCapacity = MockNodeAllocableAndCapacity
 	mm.MockGetLatencyMetrics = MockLatencyMetrics
 	mm.MockVScale = MockVScale
@@ -251,6 +265,10 @@ func CreateSimpleMockMetrics() *MockMetrics {
 		"pod3": {"pod3", "node2", "container", 300},
 	}
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 0.95
+	mm.NodeUsages = map[string]int64{
+		"node1": 540,
+		"node2": 270,
+	}
 	mm.NodeAllocables = map[string]int64{
 		"node1": 400,
 		"node2": 700,
@@ -259,7 +277,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 		"node1": 1000,
 		"node2": 1000,
 	}
-	mm.DeploymentUtil = 600
+	mm.DeploymentUtil = 810
 
 	return mm
 }

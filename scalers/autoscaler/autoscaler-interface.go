@@ -14,7 +14,7 @@ type AutoscalerMetrics interface {
 	GetMetricsClientset(config *rest.Config) (*metrics_client.Clientset, error)
 	GetPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error)
 	GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error)
-	GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error)
+	GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error)
 	GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error)
 	VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) error
 	ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
@@ -23,7 +23,7 @@ type AutoscalerMetrics interface {
 }
 
 type AutoscalerInterface interface {
-	Init(metrics AutoscalerMetrics) error
+	Init() error
 	RunRound() error
 	isSLOViolated() bool
 	vScaleTo(millis int64) error

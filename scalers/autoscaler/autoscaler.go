@@ -10,17 +10,24 @@ import (
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
-/* --- GLOBAL VARS --- */
-const PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
+/* --- CONFIG VARS --- */
+const DEFAULT_PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
 
-const MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
-const DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
+const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
+const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
-const DEPLOYMENT_NAMESPACE = "default"
-const MAPS = 500              // in millicpus
-const LATENCY_THRESHOLD = 100 // in milliseconds
+const DEFAULT_DEPLOYMENT_NAMESPACE = "default"
+const DEFAULT_MAPS = 500              // in millicpus
+const DEFAULT_LATENCY_THRESHOLD = 100 // in milliseconds
 
 type Autoscaler struct {
+	prometheus_url                   string
+	min_node_availabiility_threshold float64
+	downscale_utilization_threshold  float64
+	deployment_namespace             string
+	maps                             int64
+	latency_threshold                int64
+
 	metrics           AutoscalerMetrics
 	clientset         kube_client.Interface
 	metrics_clientset *metrics_client.Clientset
@@ -29,8 +36,16 @@ type Autoscaler struct {
 func main() {
 	am := new(DefaultAutoscalerMetrics)
 
-	a := Autoscaler{}
-	err := a.Init(am)
+	a := Autoscaler{
+		prometheus_url:                   DEFAULT_PROMETHEUS_URL,
+		min_node_availabiility_threshold: DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD,
+		downscale_utilization_threshold:  DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD,
+		deployment_namespace:             DEFAULT_DEPLOYMENT_NAMESPACE,
+		maps:                             DEFAULT_MAPS,
+		latency_threshold:                DEFAULT_LATENCY_THRESHOLD,
+		metrics:                          am,
+	}
+	err := a.Init()
 	if err != nil {
 		panic(err)
 	}
@@ -45,10 +60,8 @@ func main() {
 	}
 }
 
-func (a *Autoscaler) Init(am AutoscalerMetrics) error {
+func (a *Autoscaler) Init() error {
 	/* --- CONFIGURATION LOGIC --- */
-	a.metrics = am
-
 	// creates the in-cluster config
 	config, err := a.metrics.GetKubernetesConfig()
 	if err != nil {
@@ -66,7 +79,7 @@ func (a *Autoscaler) Init(am AutoscalerMetrics) error {
 	}
 
 	// set env variable for Prometheus service url
-	os.Setenv("PROMETHEUS_URL", PROMETHEUS_URL)
+	os.Setenv("PROMETHEUS_URL", a.prometheus_url)
 	return nil
 }
 
@@ -74,7 +87,7 @@ func (a *Autoscaler) RunRound() error {
 	fmt.Println("--- New Scaling Round ---")
 
 	// Get all deployments in the namespace
-	deployments, err := a.metrics.GetAllDeploymentsFromNamespace(a.clientset, DEPLOYMENT_NAMESPACE)
+	deployments, err := a.metrics.GetAllDeploymentsFromNamespace(a.clientset, a.deployment_namespace)
 	if err != nil {
 		fmt.Printf("Failed to get deployments: %s\n", err.Error())
 		return err
@@ -84,13 +97,13 @@ func (a *Autoscaler) RunRound() error {
 		deploymentName := deployment.Name
 		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
-		podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, DEPLOYMENT_NAMESPACE)
+		podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, a.deployment_namespace)
 		if err != nil {
 			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
 		}
 
-		utilization, alloc, err := a.metrics.GetDeploymentUtilAndAlloc(a.clientset, a.metrics_clientset, deploymentName, DEPLOYMENT_NAMESPACE, podList)
+		utilization, alloc, err := a.metrics.GetDeploymentUtilAndAlloc(a.clientset, a.metrics_clientset, deploymentName, a.deployment_namespace, podList)
 		if err != nil {
 			fmt.Printf("Failed to get average utilization and allocation for deployment %s: %s\n", deploymentName, err.Error())
 			continue
@@ -99,7 +112,7 @@ func (a *Autoscaler) RunRound() error {
 		fmt.Printf("Deployment %s: Utilization at %d of %d allocation\n", deploymentName, utilization, alloc)
 
 		numPods := len(podList.Items)
-		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(MAPS)))
+		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(a.maps)))
 		newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
 
 		if a.isSLOViolated(deploymentName) {
@@ -114,25 +127,26 @@ func (a *Autoscaler) RunRound() error {
 			// vscale
 			hasNoCongested := true
 			for _, pod := range podList.Items {
-				allocatable, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				usage, capacity, err := a.metrics.GetNodeUsageAndCapacity(a.clientset, a.metrics_clientset, pod.Spec.NodeName)
+
 				if err != nil {
-					fmt.Printf("Failed to get node allocatable and capacity for pod %s: %s\n", pod.Name, err.Error())
+					fmt.Printf("Failed to get node usage and capacity for pod %s: %s\n", pod.Name, err.Error())
 					continue
 				}
 
-				availablePercentage := float64(allocatable) / float64(capacity)
-				if availablePercentage > MIN_NODE_AVAILABILITY_THRESHOLD {
+				availableCPU := capacity - usage
+				availablePercentage := float64(availableCPU) / float64(capacity)
+				if availablePercentage > a.min_node_availabiility_threshold {
 					continue
 				}
 
 				hasNoCongested = false
 				currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 				additionalAllocation := newRequests - currentRequests
-				fmt.Printf("%d %d\n", additionalAllocation, allocatable)
-				if additionalAllocation > allocatable {
+				if additionalAllocation > availableCPU {
 					// create new pod on uncongested node and delete old pod
-					a.hScale(idealReplicaCt + 1, deploymentName)
-					a.metrics.DeletePod(a.clientset, pod.Name, DEPLOYMENT_NAMESPACE)
+					a.hScale(idealReplicaCt+1, deploymentName)
+					a.metrics.DeletePod(a.clientset, pod.Name, a.deployment_namespace)
 					a.hScale(idealReplicaCt, deploymentName)
 				}
 			}
@@ -144,12 +158,12 @@ func (a *Autoscaler) RunRound() error {
 				a.vScaleTo(newRequests, deploymentName)
 			}
 			time.Sleep(5 * time.Second)
-		} else if utilPercent < DOWNSCALE_UTILIZATION_THRESHOLD {
+		} else if utilPercent < a.downscale_utilization_threshold {
 			if idealReplicaCt < numPods {
 				a.hScale(idealReplicaCt, deploymentName)
 			}
 
-			hysteresisMargin := 1 / DOWNSCALE_UTILIZATION_THRESHOLD
+			hysteresisMargin := 1 / a.downscale_utilization_threshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
 			a.vScaleTo(newRequests, deploymentName)
 			time.Sleep(5 * time.Second)
@@ -170,14 +184,14 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 	}
 
 	fmt.Printf("90th percentile latency: %f\n", prometheus_metrics[deploymentName])
-	dist := prometheus_metrics[deploymentName] / LATENCY_THRESHOLD
+	dist := prometheus_metrics[deploymentName] / float64(a.latency_threshold)
 
 	return dist > 1
 }
 
 // in-place scale all pods to the given CPU request
 func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
-	podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, DEPLOYMENT_NAMESPACE)
+	podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, a.deployment_namespace)
 	if err != nil {
 		return err
 	}
@@ -194,6 +208,6 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
 // is blocking (see `hScaleFromHSR`)
 func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string) error {
 	fmt.Printf("Changing count to %d\n", idealReplicaCt)
-	
-	return a.metrics.ChangeReplicaCount(DEPLOYMENT_NAMESPACE, deploymentName, idealReplicaCt, a.clientset)
+
+	return a.metrics.ChangeReplicaCount(a.deployment_namespace, deploymentName, idealReplicaCt, a.clientset)
 }
