@@ -1,0 +1,3 @@
+package main
+
+/* INTEGRATION TESTS TO BE RUN IN A CLUSTER */
