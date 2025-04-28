@@ -3,6 +3,7 @@ package util
 import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	appsv1 "k8s.io/api/apps/v1"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
@@ -37,6 +38,8 @@ type MockMetrics struct {
 	MockGetLatencyMetrics           func(deployment_name string, percentile float64) (map[string]float64, error)
 	MockVScale                      func(clientset kube_client.Interface, podname string, containername string, cpurequests string) error
 	MockChangeReplicaCount          func(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
+	MockGetAllDeploymentsFromNamespace func(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error)
+	MockDeletePod                     func(clientset kube_client.Interface, podname string, namespace string) error
 }
 
 func (m *MockMetrics) GetKubernetesConfig() (*rest.Config, error) {
@@ -67,6 +70,14 @@ func (m *MockMetrics) ChangeReplicaCount(namespace string, deploymentName string
 	return m.MockChangeReplicaCount(namespace, deploymentName, replicaCt, clientset)
 }
 
+func (m *MockMetrics) GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
+	return m.MockGetAllDeploymentsFromNamespace(clientset, namespace)
+}
+
+func (m *MockMetrics) DeletePod(clientset kube_client.Interface, podname string, namespace string) error {
+	return m.MockDeletePod(clientset, podname, namespace)
+}
+
 /* general (shared) mock functions */
 func FakeConfig() (*rest.Config, error) {
 	return new(rest.Config), nil
@@ -95,6 +106,22 @@ func makePod(podName string, nodeName string, cpuRequests int64) v1.Pod {
 	}
 
 	return pod
+}
+
+func makeDeployment(deploymentName string, namespace string, replicas int32) appsv1.Deployment {
+	deployment := appsv1.Deployment{}
+	deployment.Name = deploymentName
+	deployment.Namespace = namespace
+	deployment.Spec.Replicas = &replicas
+	return deployment
+}
+
+func SimpleAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
+	deploymentList := new(appsv1.DeploymentList)
+	deploymentList.Items = []appsv1.Deployment{
+		makeDeployment(MOCK_DEPLOYMENT_NAME, MOCK_DEPLOYMENT_NAMESPACE, 1),
+	}
+	return deploymentList, nil
 }
 
 func SimplePodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error) {
@@ -148,6 +175,10 @@ func DummyChangeReplicaCount(namespace string, deploymentName string, replicaCt 
 	return nil
 }
 
+func DummyDeletePod(clientset kube_client.Interface, podname string, namespace string) error {
+	return nil
+}
+
 func CreateSimpleMockMetrics() *MockMetrics {
 	mm := new(MockMetrics)
 	mm.MockGetKubernetesConfig = FakeConfig
@@ -159,6 +190,8 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetLatencyMetrics = SimpleGoodLatencyMetrics
 	mm.MockVScale = DummyVScale
 	mm.MockChangeReplicaCount = DummyChangeReplicaCount
+	mm.MockGetAllDeploymentsFromNamespace = SimpleAllDeploymentsFromNamespace
+	mm.MockDeletePod = DummyDeletePod
 
 	return mm
 }

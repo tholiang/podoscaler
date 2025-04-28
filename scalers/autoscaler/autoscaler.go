@@ -16,8 +16,6 @@ const PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
 const MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
 const DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
-// TODO: support multiple deployments
-const DEPLOYMENT_NAME = "testapp"
 const DEPLOYMENT_NAMESPACE = "default"
 const MAPS = 500              // in millicpus
 const LATENCY_THRESHOLD = 100 // in milliseconds
@@ -43,7 +41,7 @@ func main() {
 			panic(err)
 		}
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -73,73 +71,89 @@ func (a *Autoscaler) Init(am AutoscalerMetrics) error {
 }
 
 func (a *Autoscaler) RunRound() error {
-	/* ------------ MAIN LOOP -------------- */
 	fmt.Println("--- New Scaling Round ---")
 
-	podList, err := a.metrics.GetPodListForDeployment(a.clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
+	// Get all deployments in the namespace
+	deployments, err := a.metrics.GetAllDeploymentsFromNamespace(a.clientset, DEPLOYMENT_NAMESPACE)
 	if err != nil {
-		fmt.Printf("Failed to get pod list: %s\n", err.Error())
+		fmt.Printf("Failed to get deployments: %s\n", err.Error())
 		return err
 	}
 
-	utilization, alloc, err := a.metrics.GetDeploymentUtilAndAlloc(a.clientset, a.metrics_clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE, podList)
-	if err != nil {
-		fmt.Printf("Failed to get average utilization and allocation: %s\n", err.Error())
-		return err
-	}
-	utilPercent := float64(utilization) / float64(alloc)
-	fmt.Printf("Utilization at %d of %d allocation\n", utilization, alloc)
+	for _, deployment := range deployments.Items {
+		deploymentName := deployment.Name
+		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
-	numPods := len(podList.Items)
-	idealReplicaCt := int(math.Ceil(float64(utilization) / float64(MAPS)))
-	newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
-
-	if a.isSLOViolated() {
-		fmt.Println("Above SLO")
-		// hscale
-		if idealReplicaCt > numPods {
-			a.hScale(idealReplicaCt)
-			a.vScaleTo(newRequests)
-			return nil
+		podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, DEPLOYMENT_NAMESPACE)
+		if err != nil {
+			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
+			continue
 		}
 
-		// vscale
-		hasNoCongested := true
-		for _, pod := range podList.Items {
-			allocatable, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
-			if err != nil {
-				fmt.Printf("Failed to get node allocatable and capacity: %s\n", err.Error())
-				return err
+		utilization, alloc, err := a.metrics.GetDeploymentUtilAndAlloc(a.clientset, a.metrics_clientset, deploymentName, DEPLOYMENT_NAMESPACE, podList)
+		if err != nil {
+			fmt.Printf("Failed to get average utilization and allocation for deployment %s: %s\n", deploymentName, err.Error())
+			continue
+		}
+		utilPercent := float64(utilization) / float64(alloc)
+		fmt.Printf("Deployment %s: Utilization at %d of %d allocation\n", deploymentName, utilization, alloc)
+
+		numPods := len(podList.Items)
+		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(MAPS)))
+		newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
+
+		if a.isSLOViolated(deploymentName) {
+			fmt.Printf("Deployment %s: Above SLO\n", deploymentName)
+			// hscale
+			if idealReplicaCt > numPods {
+				a.hScale(idealReplicaCt, deploymentName)
+				a.vScaleTo(newRequests, deploymentName)
+				continue
 			}
 
-			availablePercentage := float64(allocatable) / float64(capacity)
-			if availablePercentage > MIN_NODE_AVAILABILITY_THRESHOLD {
+			// vscale
+			hasNoCongested := true
+			for _, pod := range podList.Items {
+				allocatable, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				if err != nil {
+					fmt.Printf("Failed to get node allocatable and capacity for pod %s: %s\n", pod.Name, err.Error())
+					continue
+				}
+
+				availablePercentage := float64(allocatable) / float64(capacity)
+				if availablePercentage > MIN_NODE_AVAILABILITY_THRESHOLD {
+					continue
+				}
+
+				hasNoCongested = false
+				currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+				additionalAllocation := newRequests - currentRequests
+				fmt.Printf("%d %d\n", additionalAllocation, allocatable)
+				if additionalAllocation > allocatable {
+					// create new pod on uncongested node and delete old pod
+					a.hScale(idealReplicaCt + 1, deploymentName)
+					a.metrics.DeletePod(a.clientset, pod.Name, DEPLOYMENT_NAMESPACE)
+					a.hScale(idealReplicaCt, deploymentName)
+				}
+			}
+
+			if hasNoCongested {
+				fmt.Printf("Deployment %s: External error detected, exiting\n", deploymentName)
 				return nil
-			}
-
-			hasNoCongested = false
-			currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
-			additionalAllocation := newRequests - currentRequests
-			fmt.Printf("%d %d\n", additionalAllocation, allocatable)
-			if additionalAllocation > allocatable {
-				// TODO: move pod greedily
 			} else {
-				a.vScaleTo(newRequests)
+				a.vScaleTo(newRequests, deploymentName)
 			}
-		}
+			time.Sleep(5 * time.Second)
+		} else if utilPercent < DOWNSCALE_UTILIZATION_THRESHOLD {
+			if idealReplicaCt < numPods {
+				a.hScale(idealReplicaCt, deploymentName)
+			}
 
-		if hasNoCongested {
-			fmt.Println("External error detected, terminating autoscaler")
-			return nil
+			hysteresisMargin := 1 / DOWNSCALE_UTILIZATION_THRESHOLD
+			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
+			a.vScaleTo(newRequests, deploymentName)
+			time.Sleep(5 * time.Second)
 		}
-	} else if utilPercent < DOWNSCALE_UTILIZATION_THRESHOLD {
-		if idealReplicaCt < numPods {
-			a.hScale(idealReplicaCt)
-		}
-
-		hysteresisMargin := 1 / DOWNSCALE_UTILIZATION_THRESHOLD
-		newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
-		a.vScaleTo(newRequests)
 	}
 
 	fmt.Println("--- Done ---")
@@ -148,22 +162,22 @@ func (a *Autoscaler) RunRound() error {
 	return nil
 }
 
-func (a *Autoscaler) isSLOViolated() bool {
-	prometheus_metrics, err := a.metrics.GetLatencyMetrics(DEPLOYMENT_NAME, 0.9)
+func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
+	prometheus_metrics, err := a.metrics.GetLatencyMetrics(deploymentName, 0.9)
 	if err != nil {
 		fmt.Println(err.Error())
 		return false
 	}
 
-	fmt.Printf("90th percentile latency: %f\n", prometheus_metrics[DEPLOYMENT_NAME])
-	dist := prometheus_metrics[DEPLOYMENT_NAME] / LATENCY_THRESHOLD
+	fmt.Printf("90th percentile latency: %f\n", prometheus_metrics[deploymentName])
+	dist := prometheus_metrics[deploymentName] / LATENCY_THRESHOLD
 
 	return dist > 1
 }
 
 // in-place scale all pods to the given CPU request
-func (a *Autoscaler) vScaleTo(millis int64) error {
-	podList, err := a.metrics.GetPodListForDeployment(a.clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
+func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
+	podList, err := a.metrics.GetPodListForDeployment(a.clientset, deploymentName, DEPLOYMENT_NAMESPACE)
 	if err != nil {
 		return err
 	}
@@ -177,9 +191,9 @@ func (a *Autoscaler) vScaleTo(millis int64) error {
 	return err
 }
 
-// TODO: make blocking/synchronous
-func (a *Autoscaler) hScale(idealReplicaCt int) error {
+// is blocking (see `hScaleFromHSR`)
+func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string) error {
 	fmt.Printf("Changing count to %d\n", idealReplicaCt)
-
-	return a.metrics.ChangeReplicaCount(DEPLOYMENT_NAMESPACE, DEPLOYMENT_NAME, idealReplicaCt, a.clientset)
+	
+	return a.metrics.ChangeReplicaCount(DEPLOYMENT_NAMESPACE, deploymentName, idealReplicaCt, a.clientset)
 }

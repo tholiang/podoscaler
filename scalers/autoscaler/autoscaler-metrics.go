@@ -4,6 +4,7 @@ import (
 	util "github.com/tholiang/podoscaler/scalers/util"
 
 	v1 "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -47,4 +48,12 @@ func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podna
 
 func (m *DefaultAutoscalerMetrics) ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
 	return util.ChangeReplicaCount(namespace, deploymentName, replicaCt, clientset)
+}
+
+func (m *DefaultAutoscalerMetrics) GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
+	return util.GetAllDeploymentsFromNamespace(clientset, namespace)
+}
+
+func (m *DefaultAutoscalerMetrics) DeletePod(clientset kube_client.Interface, podname string, namespace string) error {
+	return util.DeletePod(clientset, podname, namespace)
 }

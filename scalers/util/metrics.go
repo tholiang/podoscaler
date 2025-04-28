@@ -8,6 +8,7 @@ import (
 	// "strings"
 
 	v1 "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	kube_client "k8s.io/client-go/kubernetes"
@@ -80,4 +81,12 @@ func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName strin
 	allocatable := node.Status.Allocatable.Cpu().MilliValue()
 
 	return allocatable, capacity, nil
+}
+
+func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
+	deployments, err := clientset.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get deployments: %w", err)
+	}
+	return deployments, nil
 }

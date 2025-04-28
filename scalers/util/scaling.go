@@ -3,8 +3,11 @@ package util
 import (
 	"context"
 
+	"time"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	kube_client "k8s.io/client-go/kubernetes"
 )
 
@@ -31,6 +34,15 @@ func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) 
 		return err
 	}
 
+	// check every 500ms for 30s or until all replicas are ready
+	err = wait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, 30*time.Second, true, func(ctx context.Context) (bool, error) {
+		deployment, err := clientset.AppsV1().Deployments(req.DeploymentNamespace).Get(context.TODO(), req.DeploymentName, metav1.GetOptions{})
+		if err != nil {
+			return false, err
+		}
+		return deployment.Status.ReadyReplicas == req.Replicas, nil
+	})
+
 	return nil
 }
 
@@ -49,5 +61,13 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 		return err
 	}
 
+	return nil
+}
+
+func DeletePod(clientset kube_client.Interface, podname string, namespace string) error {
+	err := clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podname, metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
 	return nil
 }

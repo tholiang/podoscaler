@@ -1,6 +1,7 @@
 package main
 
 import (
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -17,6 +18,8 @@ type AutoscalerMetrics interface {
 	GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error)
 	VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) error
 	ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
+	GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error)
+	DeletePod(clientset kube_client.Interface, podname string, namespace string) error
 }
 
 type AutoscalerInterface interface {
