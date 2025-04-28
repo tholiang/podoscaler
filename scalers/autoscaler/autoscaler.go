@@ -114,13 +114,14 @@ func (a *Autoscaler) RunRound() error {
 			// vscale
 			hasNoCongested := true
 			for _, pod := range podList.Items {
-				allocatable, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				usage, capacity, err := a.metrics.GetNodeUsageAndCapacity(a.clientset, a.metrics_clientset, pod.Spec.NodeName)
 				if err != nil {
-					fmt.Printf("Failed to get node allocatable and capacity for pod %s: %s\n", pod.Name, err.Error())
+					fmt.Printf("Failed to get node usage and capacity for pod %s: %s\n", pod.Name, err.Error())
 					continue
 				}
 
-				availablePercentage := float64(allocatable) / float64(capacity)
+				availableCPU := capacity - usage
+				availablePercentage := float64(availableCPU) / float64(capacity)
 				if availablePercentage > MIN_NODE_AVAILABILITY_THRESHOLD {
 					continue
 				}
@@ -128,10 +129,10 @@ func (a *Autoscaler) RunRound() error {
 				hasNoCongested = false
 				currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 				additionalAllocation := newRequests - currentRequests
-				fmt.Printf("%d %d\n", additionalAllocation, allocatable)
-				if additionalAllocation > allocatable {
+				fmt.Printf("%d %d\n", additionalAllocation, availableCPU)
+				if additionalAllocation > availableCPU {
 					// create new pod on uncongested node and delete old pod
-					a.hScale(idealReplicaCt + 1, deploymentName)
+					a.hScale(idealReplicaCt+1, deploymentName)
 					a.metrics.DeletePod(a.clientset, pod.Name, DEPLOYMENT_NAMESPACE)
 					a.hScale(idealReplicaCt, deploymentName)
 				}
@@ -194,6 +195,6 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
 // is blocking (see `hScaleFromHSR`)
 func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string) error {
 	fmt.Printf("Changing count to %d\n", idealReplicaCt)
-	
+
 	return a.metrics.ChangeReplicaCount(DEPLOYMENT_NAMESPACE, deploymentName, idealReplicaCt, a.clientset)
 }

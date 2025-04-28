@@ -34,8 +34,8 @@ func (m *DefaultAutoscalerMetrics) GetDeploymentUtilAndAlloc(clientset kube_clie
 	return util.GetDeploymentUtilAndAlloc(clientset, metricsClient, deploymentName, namespace, podList)
 }
 
-func (m *DefaultAutoscalerMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
-	return util.GetNodeAllocableAndCapacity(clientset, nodeName)
+func (m *DefaultAutoscalerMetrics) GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	return util.GetNodeUsageAndCapacity(clientset, metricsClient, nodeName)
 }
 
 func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {

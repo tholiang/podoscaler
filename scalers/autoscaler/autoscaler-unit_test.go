@@ -50,7 +50,7 @@ func TestBasicVscaleUp(t *testing.T) {
 	mm := util.CreateSimpleMockMetrics()
 	mm.MockGetLatencyMetrics = util.SimpleOverLatencyMetrics
 	mm.MockGetDeploymentUtilAndAlloc = util.SimpleOverDeploymentUtilAndAlloc
-	mm.MockGetNodeAllocableAndCapacity = util.SimpleCongestedNodeAllocableAndCapacity
+	mm.MockGetNodeUsageAndCapacity = util.SimpleCongestedNodeUsageAndCapacity
 	mockVScale := func(clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
 		_, ok := vscaleCounters[podname]
 		if !ok {

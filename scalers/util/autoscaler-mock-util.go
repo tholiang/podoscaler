@@ -34,7 +34,7 @@ type MockMetrics struct {
 	MockGetMetricsClientset         func(config *rest.Config) (*metrics_client.Clientset, error)
 	MockGetPodListForDeployment     func(clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error)
 	MockGetDeploymentUtilAndAlloc   func(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error)
-	MockGetNodeAllocableAndCapacity func(clientset kube_client.Interface, nodeName string) (int64, int64, error)
+	MockGetNodeUsageAndCapacity     func(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error)
 	MockGetLatencyMetrics           func(deployment_name string, percentile float64) (map[string]float64, error)
 	MockVScale                      func(clientset kube_client.Interface, podname string, containername string, cpurequests string) error
 	MockChangeReplicaCount          func(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
@@ -57,8 +57,8 @@ func (m *MockMetrics) GetPodListForDeployment(clientset kube_client.Interface, d
 func (m *MockMetrics) GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
 	return m.MockGetDeploymentUtilAndAlloc(clientset, metricsClient, deploymentName, namespace, podList)
 }
-func (m *MockMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
-	return m.MockGetNodeAllocableAndCapacity(clientset, nodeName)
+func (m *MockMetrics) GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	return m.MockGetNodeUsageAndCapacity(clientset, metricsClient, nodeName)
 }
 func (m *MockMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	return m.MockGetLatencyMetrics(deployment_name, percentile)
@@ -144,11 +144,11 @@ func SimpleOverDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsCl
 func SimpleUnderDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
 	return 100, 300, nil
 }
-func SimpleUncongestedNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
-	return 800, 1000, nil
+func SimpleUncongestedNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	return 200, 1000, nil
 }
-func SimpleCongestedNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
-	return 100, 1000, nil
+func SimpleCongestedNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+	return 900, 1000, nil
 }
 func SimpleGoodLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	metrics := map[string]float64{
@@ -186,7 +186,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetMetricsClientset = FakeMetricsClientset
 	mm.MockGetPodListForDeployment = SimplePodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = SimpleFineDeploymentUtilAndAlloc
-	mm.MockGetNodeAllocableAndCapacity = SimpleUncongestedNodeAllocableAndCapacity
+	mm.MockGetNodeUsageAndCapacity = SimpleUncongestedNodeUsageAndCapacity
 	mm.MockGetLatencyMetrics = SimpleGoodLatencyMetrics
 	mm.MockVScale = DummyVScale
 	mm.MockChangeReplicaCount = DummyChangeReplicaCount

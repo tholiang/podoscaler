@@ -71,16 +71,20 @@ func GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *m
 	return utilMilli, allocMilli, nil
 }
 
-func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
+func GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
 	node, err := clientset.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
 	if err != nil {
 		return 0, 0, fmt.Errorf("failed to get node: %w", err)
 	}
-
 	capacity := node.Status.Capacity.Cpu().MilliValue()
-	allocatable := node.Status.Allocatable.Cpu().MilliValue()
 
-	return allocatable, capacity, nil
+	metricsNode, err := metricsClient.MetricsV1beta1().NodeMetricses().Get(context.TODO(), nodeName, metav1.GetOptions{})
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to get node metrics: %w", err)
+	}
+	usage := metricsNode.Usage.Cpu().MilliValue()
+
+	return usage, capacity, nil
 }
 
 func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
