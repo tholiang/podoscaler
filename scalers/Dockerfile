@@ -12,7 +12,9 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download
 
 # Copy only necessary source directories
+COPY ./autoscaler ./autoscaler
 COPY ./util ./util
+COPY ./autoscalertest ./autoscalertest
 COPY ${SRC_DIR} ./${SRC_DIR}
 
 # Build the binary

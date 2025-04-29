@@ -1,4 +1,4 @@
-package main
+package autoscaler
 
 import (
 	util "github.com/tholiang/podoscaler/scalers/util"

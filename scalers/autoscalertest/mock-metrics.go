@@ -1,4 +1,4 @@
-package testutil
+package autoscalertest
 
 import (
 	appsv1 "k8s.io/api/apps/v1"
