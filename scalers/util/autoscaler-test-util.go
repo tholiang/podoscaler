@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"slices"
+	"sort"
 	"strconv"
 	"testing"
 
@@ -21,6 +22,61 @@ func AssertNoError(e error, t *testing.T) {
 	}
 }
 
+func AssertIntsEqual(i1 int, i2 int, t *testing.T) {
+	if i1 != i2 {
+		t.Errorf("unequal ints, expected %d, got %d", i1, i2)
+	}
+}
+
+func AssertAction(mm *MockMetrics, t *testing.T, a Action) {
+	// compare first action to given and pop
+	first_action := mm.Actions[0]
+	if first_action.Type != a.Type {
+		t.Errorf("incorrect action type, expected %s, got %s", a.Type, first_action.Type)
+	}
+
+	if a.Type == VscaleAction {
+		// ignore because order may be arbitrary
+		// if a.PodName != first_action.PodName {
+		// 	t.Errorf("incorrect pod name for vscale, expected %s, got %s", a.PodName, first_action.PodName)
+		// }
+		if a.ContainerName != first_action.ContainerName {
+			t.Errorf("incorrect container name for vscale, expected %s, got %s", a.ContainerName, first_action.ContainerName)
+		}
+		if a.CpuRequests != first_action.CpuRequests {
+			t.Errorf("incorrect cpu request for vscale, expected %s, got %s", a.CpuRequests, first_action.CpuRequests)
+		}
+	} else if a.Type == ChangeReplicaCountAction {
+		if a.Namespace != first_action.Namespace {
+			t.Errorf("incorrect namespace for change replica, expected %s, got %s", a.Namespace, first_action.Namespace)
+		}
+		if a.DeploymentName != first_action.DeploymentName {
+			t.Errorf("incorrect deployment name for change replica, expected %s, got %s", a.DeploymentName, first_action.DeploymentName)
+		}
+		if a.ReplicaCt != first_action.ReplicaCt {
+			t.Errorf("incorrect replica count for change replica, expected %d, got %d", a.ReplicaCt, first_action.ReplicaCt)
+		}
+	} else {
+		if a.DeploymentName != first_action.DeploymentName {
+			t.Errorf("incorrect deployment name for delete, expected %s, got %s", a.DeploymentName, first_action.DeploymentName)
+		}
+		if a.PodName != first_action.PodName {
+			t.Errorf("incorrect pod name for delete, expected %s, got %s", a.PodName, first_action.PodName)
+		}
+	}
+
+	mm.Actions = mm.Actions[1:]
+}
+
+func AssertNoActions(mm *MockMetrics, t *testing.T) {
+	if len(mm.Actions) > 0 {
+		t.Errorf("found %d unexpected actions", len(mm.Actions))
+		for _, a := range mm.Actions {
+			t.Errorf("%s action", a.Type)
+		}
+	}
+}
+
 func GetStringIntMapKeys(m map[string]int) []string {
 	keys := make([]string, len(m))
 
@@ -30,6 +86,7 @@ func GetStringIntMapKeys(m map[string]int) []string {
 		i++
 	}
 
+	sort.Strings(keys)
 	return keys
 }
 
@@ -56,6 +113,7 @@ func GetPodListKeys(m MockPodList) []string {
 		i++
 	}
 
+	sort.Strings(keys)
 	return keys
 }
 
@@ -161,17 +219,13 @@ func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface,
 	return m.DeploymentUtil, GetDeploymentAlloc(m.Pods), nil
 }
 
-func MockNodeUsageAndCapacity(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+func MockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
 	usage, ok := m.NodeUsages[nodeName]
 	if !ok {
-		return 0, 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
-	}
-	cap, ok := m.NodeCapacities[nodeName]
-	if !ok {
-		return 0, 0, fmt.Errorf("couldn't find capacity for node %s", nodeName)
+		return 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
 	}
 
-	return usage, cap, nil
+	return usage, nil
 }
 
 func MockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error) {
@@ -211,6 +265,8 @@ func MockVScale(m *MockMetrics, clientset kube_client.Interface, podname string,
 
 	m.Pods[podname] = data
 
+	m.Actions = append(m.Actions, Action{Type: VscaleAction, PodName: podname, ContainerName: containername, CpuRequests: cpurequests})
+
 	return nil
 }
 
@@ -228,6 +284,8 @@ func MockChangeReplicaCount(m *MockMetrics, namespace string, deploymentName str
 		}
 	}
 
+	m.Actions = append(m.Actions, Action{Type: ChangeReplicaCountAction, Namespace: namespace, DeploymentName: deploymentName, ReplicaCt: replicaCt})
+
 	return nil
 }
 
@@ -238,6 +296,7 @@ func MockDeletePod(m *MockMetrics, clientset kube_client.Interface, podname stri
 	}
 
 	delete(m.Pods, podname)
+	m.Actions = append(m.Actions, Action{Type: DeletePodAction, PodName: namespace, Namespace: namespace})
 	return nil
 }
 
@@ -249,7 +308,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetAllDeploymentsFromNamespace = MockAllDeploymentsFromNamespace
 	mm.MockGetPodListForDeployment = MockPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = MockDeploymentUtilAndAlloc
-	mm.MockGetNodeUsageAndCapacity = MockNodeUsageAndCapacity
+	mm.MockGetNodeUsage = MockNodeUsage
 	mm.MockGetNodeAllocableAndCapacity = MockNodeAllocableAndCapacity
 	mm.MockGetLatencyMetrics = MockLatencyMetrics
 	mm.MockVScale = MockVScale

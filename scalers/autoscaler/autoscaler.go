@@ -127,23 +127,29 @@ func (a *Autoscaler) RunRound() error {
 			// vscale
 			hasNoCongested := true
 			for _, pod := range podList.Items {
-				usage, capacity, err := a.metrics.GetNodeUsageAndCapacity(a.clientset, a.metrics_clientset, pod.Spec.NodeName)
-
+				usage, err := a.metrics.GetNodeUsage(a.metrics_clientset, pod.Spec.NodeName)
 				if err != nil {
-					fmt.Printf("Failed to get node usage and capacity for pod %s: %s\n", pod.Name, err.Error())
+					fmt.Printf("Failed to get node usage for pod %s: %s\n", pod.Name, err.Error())
 					continue
 				}
 
-				availableCPU := capacity - usage
-				availablePercentage := float64(availableCPU) / float64(capacity)
-				if availablePercentage > a.min_node_availabiility_threshold {
+				alloc, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				if err != nil {
+					fmt.Printf("Failed to get node allocable and capacity for pod %s: %s\n", pod.Name, err.Error())
 					continue
 				}
 
+				unusedCPU := capacity - usage
+				unusedPercentage := float64(unusedCPU) / float64(capacity)
+				if unusedPercentage > a.min_node_availabiility_threshold {
+					continue
+				}
 				hasNoCongested = false
+
 				currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+				unallocatedCPU := capacity - alloc
 				additionalAllocation := newRequests - currentRequests
-				if additionalAllocation > availableCPU {
+				if additionalAllocation > unallocatedCPU {
 					// create new pod on uncongested node and delete old pod
 					a.hScale(idealReplicaCt+1, deploymentName)
 					a.metrics.DeletePod(a.clientset, pod.Name, a.deployment_namespace)

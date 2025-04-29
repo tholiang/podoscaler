@@ -3,8 +3,8 @@ package main
 import (
 	util "github.com/tholiang/podoscaler/scalers/util"
 
-	v1 "k8s.io/api/core/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -34,8 +34,12 @@ func (m *DefaultAutoscalerMetrics) GetDeploymentUtilAndAlloc(clientset kube_clie
 	return util.GetDeploymentUtilAndAlloc(clientset, metricsClient, deploymentName, namespace, podList)
 }
 
-func (m *DefaultAutoscalerMetrics) GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
-	return util.GetNodeUsageAndCapacity(clientset, metricsClient, nodeName)
+func (m *DefaultAutoscalerMetrics) GetNodeUsage(metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
+	return util.GetNodeUsage(metricsClient, nodeName)
+}
+
+func (m *DefaultAutoscalerMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
+	return util.GetNodeAllocableAndCapacity(clientset, nodeName)
 }
 
 func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {

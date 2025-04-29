@@ -16,6 +16,24 @@ type PodData struct {
 }
 type MockPodList map[string]PodData
 
+type ActionType string
+
+const (
+	VscaleAction             ActionType = "vscale"
+	ChangeReplicaCountAction ActionType = "change replica"
+	DeletePodAction          ActionType = "delete"
+)
+
+type Action struct {
+	Type           ActionType
+	Namespace      string // change replica, delete
+	DeploymentName string // change replica
+	ReplicaCt      int    // change replica
+	PodName        string // vscale, delete
+	ContainerName  string // vscale
+	CpuRequests    string // vscale
+}
+
 type MockMetrics struct {
 	DeploymentName      string
 	DeploymentNamespace string
@@ -31,13 +49,15 @@ type MockMetrics struct {
 	MockGetMetricsClientset            func(m *MockMetrics, config *rest.Config) (*metrics_client.Clientset, error)
 	MockGetPodListForDeployment        func(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error)
 	MockGetDeploymentUtilAndAlloc      func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error)
-	MockGetNodeUsageAndCapacity        func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error)
+	MockGetNodeUsage                   func(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error)
 	MockGetNodeAllocableAndCapacity    func(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error)
 	MockGetLatencyMetrics              func(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error)
 	MockVScale                         func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error
 	MockChangeReplicaCount             func(m *MockMetrics, namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
 	MockGetAllDeploymentsFromNamespace func(m *MockMetrics, clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error)
 	MockDeletePod                      func(m *MockMetrics, clientset kube_client.Interface, podname string, namespace string) error
+
+	Actions []Action // log in MockVScale, MockChangeReplicaCount, MockDeletePod implementations
 }
 
 func (m *MockMetrics) GetKubernetesConfig() (*rest.Config, error) {
@@ -55,8 +75,8 @@ func (m *MockMetrics) GetPodListForDeployment(clientset kube_client.Interface, d
 func (m *MockMetrics) GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
 	return m.MockGetDeploymentUtilAndAlloc(m, clientset, metricsClient, deploymentName, namespace, podList)
 }
-func (m *MockMetrics) GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
-	return m.MockGetNodeUsageAndCapacity(m, clientset, metricsClient, nodeName)
+func (m *MockMetrics) GetNodeUsage(metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
+	return m.MockGetNodeUsage(m, metricsClient, nodeName)
 }
 func (m *MockMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
 	return m.MockGetNodeAllocableAndCapacity(m, clientset, nodeName)

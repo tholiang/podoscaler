@@ -3,12 +3,13 @@ package util
 import (
 	"context"
 	"fmt"
+
 	// "math"
 	// "slices"
 	// "strings"
 
-	v1 "k8s.io/api/core/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	kube_client "k8s.io/client-go/kubernetes"
@@ -71,20 +72,26 @@ func GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *m
 	return utilMilli, allocMilli, nil
 }
 
-func GetNodeUsageAndCapacity(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, nodeName string) (int64, int64, error) {
+func GetNodeUsage(metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
+	metricsNode, err := metricsClient.MetricsV1beta1().NodeMetricses().Get(context.TODO(), nodeName, metav1.GetOptions{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to get node metrics: %w", err)
+	}
+	usage := metricsNode.Usage.Cpu().MilliValue()
+
+	return usage, nil
+}
+
+func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error) {
 	node, err := clientset.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
 	if err != nil {
 		return 0, 0, fmt.Errorf("failed to get node: %w", err)
 	}
+
 	capacity := node.Status.Capacity.Cpu().MilliValue()
+	allocatable := node.Status.Allocatable.Cpu().MilliValue()
 
-	metricsNode, err := metricsClient.MetricsV1beta1().NodeMetricses().Get(context.TODO(), nodeName, metav1.GetOptions{})
-	if err != nil {
-		return 0, 0, fmt.Errorf("failed to get node metrics: %w", err)
-	}
-	usage := metricsNode.Usage.Cpu().MilliValue()
-
-	return usage, capacity, nil
+	return allocatable, capacity, nil
 }
 
 func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
