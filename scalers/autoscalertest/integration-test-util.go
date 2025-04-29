@@ -123,8 +123,8 @@ func IntMockMetricsClientset(m *MockMetrics, config *rest.Config) (*metrics_clie
 	return metrics_client.NewForConfig(config)
 }
 
-func IntMockAllDeploymentsFromNamespace(m *MockMetrics, clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
-	return util.GetAllDeploymentsFromNamespace(clientset, namespace)
+func IntMockControlledDeployments(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
+	return util.GetControlledDeployments(clientset)
 }
 
 func IntMockReadyPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
@@ -198,7 +198,7 @@ func CreateIntMockMetrics() *MockMetrics {
 	mm.MockGetKubernetesConfig = IntMockConfig
 	mm.MockGetClientset = IntMockClientset
 	mm.MockGetMetricsClientset = IntMockMetricsClientset
-	mm.MockGetAllDeploymentsFromNamespace = IntMockAllDeploymentsFromNamespace
+	mm.MockGetControlledDeployments = IntMockControlledDeployments
 	mm.MockGetReadyPodListForDeployment = IntMockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = IntMockDeploymentUtilAndAlloc
 	mm.MockGetNodeUsage = IntMockNodeUsage

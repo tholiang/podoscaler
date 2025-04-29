@@ -54,8 +54,8 @@ func (m *DefaultAutoscalerMetrics) ChangeReplicaCount(namespace string, deployme
 	return util.ChangeReplicaCount(namespace, deploymentName, replicaCt, clientset)
 }
 
-func (m *DefaultAutoscalerMetrics) GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
-	return util.GetAllDeploymentsFromNamespace(clientset, namespace)
+func (m *DefaultAutoscalerMetrics) GetControlledDeployments(clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
+	return util.GetControlledDeployments(clientset)
 }
 
 func (m *DefaultAutoscalerMetrics) DeletePod(clientset kube_client.Interface, podname string, namespace string) error {

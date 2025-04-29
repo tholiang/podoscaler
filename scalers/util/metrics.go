@@ -111,6 +111,16 @@ func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName strin
 	return allocatable, capacity, nil
 }
 
+func GetControlledDeployments(clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
+	deployments, err := clientset.AppsV1().Deployments("").List(context.TODO(), metav1.ListOptions{LabelSelector: AUTOSCALE_LABEL})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get deployments: %w", err)
+	}
+	return deployments, nil
+}
+
+/*	legacy
+
 func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
 	deployments, err := clientset.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -119,8 +129,4 @@ func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace s
 	return deployments, nil
 }
 
-
-func GetControlledPods(clientset kube_client.Interface) (*v1.PodList, error) {
-	return clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{LabelSelector: AUTOSCALE_LABEL})
-}
-
+*/

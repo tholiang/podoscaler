@@ -44,18 +44,18 @@ type MockMetrics struct {
 	NodeCapacities      map[string]int64
 	RelDeploymentUtil   float64
 
-	MockGetKubernetesConfig            func(m *MockMetrics) (*rest.Config, error)
-	MockGetClientset                   func(m *MockMetrics, config *rest.Config) (*kube_client.Clientset, error)
-	MockGetMetricsClientset            func(m *MockMetrics, config *rest.Config) (*metrics_client.Clientset, error)
-	MockGetReadyPodListForDeployment   func(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error)
-	MockGetDeploymentUtilAndAlloc      func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList []v1.Pod) (int64, int64, error)
-	MockGetNodeUsage                   func(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error)
-	MockGetNodeAllocableAndCapacity    func(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error)
-	MockGetLatencyMetrics              func(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error)
-	MockVScale                         func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error
-	MockChangeReplicaCount             func(m *MockMetrics, namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
-	MockGetAllDeploymentsFromNamespace func(m *MockMetrics, clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error)
-	MockDeletePod                      func(m *MockMetrics, clientset kube_client.Interface, podname string, namespace string) error
+	MockGetKubernetesConfig          func(m *MockMetrics) (*rest.Config, error)
+	MockGetClientset                 func(m *MockMetrics, config *rest.Config) (*kube_client.Clientset, error)
+	MockGetMetricsClientset          func(m *MockMetrics, config *rest.Config) (*metrics_client.Clientset, error)
+	MockGetReadyPodListForDeployment func(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error)
+	MockGetDeploymentUtilAndAlloc    func(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList []v1.Pod) (int64, int64, error)
+	MockGetNodeUsage                 func(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error)
+	MockGetNodeAllocableAndCapacity  func(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error)
+	MockGetLatencyMetrics            func(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error)
+	MockVScale                       func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error
+	MockChangeReplicaCount           func(m *MockMetrics, namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
+	MockGetControlledDeployments     func(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error)
+	MockDeletePod                    func(m *MockMetrics, clientset kube_client.Interface, podname string, namespace string) error
 
 	Actions []Action // log in MockVScale, MockChangeReplicaCount, MockDeletePod implementations
 }
@@ -91,8 +91,8 @@ func (m *MockMetrics) ChangeReplicaCount(namespace string, deploymentName string
 	return m.MockChangeReplicaCount(m, namespace, deploymentName, replicaCt, clientset)
 }
 
-func (m *MockMetrics) GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
-	return m.MockGetAllDeploymentsFromNamespace(m, clientset, namespace)
+func (m *MockMetrics) GetControlledDeployments(clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
+	return m.MockGetControlledDeployments(m, clientset)
 }
 
 func (m *MockMetrics) DeletePod(clientset kube_client.Interface, podname string, namespace string) error {

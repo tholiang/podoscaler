@@ -23,7 +23,6 @@ type Autoscaler struct {
 	PrometheusUrl                 string
 	MinNodeAvailabilityThreshold  float64
 	DownscaleUtilizationThreshold float64
-	DeploymentNamespace           string
 	Maps                          int64
 	LatencyThreshold              int64
 
@@ -59,7 +58,7 @@ func (a *Autoscaler) RunRound() error {
 	fmt.Println("--- New Scaling Round ---")
 
 	// Get all deployments in the namespace
-	deployments, err := a.Metrics.GetAllDeploymentsFromNamespace(a.Clientset, a.DeploymentNamespace)
+	deployments, err := a.Metrics.GetControlledDeployments(a.Clientset)
 	if err != nil {
 		fmt.Printf("Failed to get deployments: %s\n", err.Error())
 		return err
@@ -67,16 +66,16 @@ func (a *Autoscaler) RunRound() error {
 
 	for _, deployment := range deployments.Items {
 		deploymentName := deployment.Name
+		deploymentNamespace := deployment.Namespace
 		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
-		podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
-		podList, err := util.GetControlledPods(clientset)
+		podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, deploymentNamespace)
 		if err != nil {
 			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
 		}
 
-		utilization, alloc, err := a.Metrics.GetDeploymentUtilAndAlloc(a.Clientset, a.MetricsClientset, deploymentName, a.DeploymentNamespace, podList)
+		utilization, alloc, err := a.Metrics.GetDeploymentUtilAndAlloc(a.Clientset, a.MetricsClientset, deploymentName, deploymentNamespace, podList)
 		if err != nil {
 			fmt.Printf("Failed to get average utilization and allocation for deployment %s: %s\n", deploymentName, err.Error())
 			continue
@@ -92,8 +91,8 @@ func (a *Autoscaler) RunRound() error {
 			fmt.Printf("Deployment %s: Above SLO\n", deploymentName)
 			// hscale
 			if idealReplicaCt > numPods {
-				a.hScale(idealReplicaCt, deploymentName)
-				a.vScaleTo(newRequests, deploymentName)
+				a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 				continue
 			}
 
@@ -123,9 +122,9 @@ func (a *Autoscaler) RunRound() error {
 				additionalAllocation := newRequests - currentRequests
 				if additionalAllocation > allocable {
 					// create new pod on uncongested node and delete old pod
-					a.hScale(idealReplicaCt+1, deploymentName)
-					a.Metrics.DeletePod(a.Clientset, pod.Name, a.DeploymentNamespace)
-					a.hScale(idealReplicaCt, deploymentName)
+					a.hScale(idealReplicaCt+1, deploymentName, deploymentNamespace)
+					a.Metrics.DeletePod(a.Clientset, pod.Name, deploymentNamespace)
+					a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
 				}
 			}
 
@@ -133,16 +132,16 @@ func (a *Autoscaler) RunRound() error {
 				fmt.Printf("Deployment %s: External bottleneck detected; doing nothing\n", deploymentName)
 				return nil
 			} else {
-				a.vScaleTo(newRequests, deploymentName)
+				a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 			}
 		} else if utilPercent < a.DownscaleUtilizationThreshold {
 			if idealReplicaCt < numPods {
-				a.hScale(idealReplicaCt, deploymentName)
+				a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
 			}
 
 			hysteresisMargin := 1 / a.DownscaleUtilizationThreshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
-			a.vScaleTo(newRequests, deploymentName)
+			a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 		}
 	}
 
@@ -166,8 +165,8 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 }
 
 // in-place scale all pods to the given CPU request
-func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
-	podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
+func (a *Autoscaler) vScaleTo(millis int64, deploymentName string, deploymentNamespace string) error {
+	podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, deploymentNamespace)
 	if err != nil {
 		return err
 	}
@@ -182,8 +181,8 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
 }
 
 // is blocking (see `hScaleFromHSR`)
-func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string) error {
+func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string, deploymentNamespace string) error {
 	fmt.Printf("Changing count to %d\n", idealReplicaCt)
 
-	return a.Metrics.ChangeReplicaCount(a.DeploymentNamespace, deploymentName, idealReplicaCt, a.Clientset)
+	return a.Metrics.ChangeReplicaCount(deploymentNamespace, deploymentName, idealReplicaCt, a.Clientset)
 }

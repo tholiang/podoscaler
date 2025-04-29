@@ -14,7 +14,6 @@ func integration_make_autoscaler(node_avail_threshold float64, downscale_thresho
 		PrometheusUrl:                 autoscaler.DEFAULT_PROMETHEUS_URL,
 		MinNodeAvailabilityThreshold:  node_avail_threshold,
 		DownscaleUtilizationThreshold: downscale_threshold,
-		DeploymentNamespace:           namespace,
 		Maps:                          Maps,
 		LatencyThreshold:              LatencyThreshold,
 		Metrics:                       mm,

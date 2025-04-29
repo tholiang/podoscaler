@@ -11,7 +11,6 @@ func UnitMakeAutoscaler(node_avail_threshold float64, downscale_threshold float6
 		PrometheusUrl:                 "prometheus.url",
 		MinNodeAvailabilityThreshold:  node_avail_threshold,
 		DownscaleUtilizationThreshold: downscale_threshold,
-		DeploymentNamespace:           namespace,
 		Maps:                          Maps,
 		LatencyThreshold:              LatencyThreshold,
 		Metrics:                       metrics,

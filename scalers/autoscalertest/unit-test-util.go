@@ -183,7 +183,7 @@ func MockMetricsClientset(m *MockMetrics, config *rest.Config) (*metrics_client.
 	return new(metrics_client.Clientset), nil
 }
 
-func MockAllDeploymentsFromNamespace(m *MockMetrics, clientset kube_client.Interface, namespace string) (*appsv1.DeploymentList, error) {
+func MockControlledDeployments(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
 	deploymentList := new(appsv1.DeploymentList)
 	deploymentList.Items = []appsv1.Deployment{
 		MakeDeployment(m.DeploymentName, m.DeploymentNamespace, 1),
@@ -308,7 +308,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetKubernetesConfig = MockConfig
 	mm.MockGetClientset = MockClientset
 	mm.MockGetMetricsClientset = MockMetricsClientset
-	mm.MockGetAllDeploymentsFromNamespace = MockAllDeploymentsFromNamespace
+	mm.MockGetControlledDeployments = MockControlledDeployments
 	mm.MockGetReadyPodListForDeployment = MockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = MockDeploymentUtilAndAlloc
 	mm.MockGetNodeUsage = MockNodeUsage
