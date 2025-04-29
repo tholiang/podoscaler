@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+*.pem
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -24,5 +26,4 @@ go.work.sum
 # env file
 .env
 
-# crying emoji
 .DS_Store
