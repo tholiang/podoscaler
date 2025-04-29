@@ -14,7 +14,7 @@ import (
 )
 
 // return map of endpoint path to percentile latency
-func GetLatencyMetrics(service_name string, percentile float64) (map[string]float64, error) {
+func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	prom_url := os.Getenv("PROMETHEUS_URL")
 	if prom_url == "" {
 		return nil, errors.New("PROMETHEUS_URL env not set")
@@ -29,7 +29,7 @@ func GetLatencyMetrics(service_name string, percentile float64) (map[string]floa
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	result, warnings, err := v1api.Query(ctx, fmt.Sprintf("histogram_quantile(%f,rate(http_response_time_milliseconds_bucket{}[10m]))", percentile), time.Now())
+	result, warnings, err := v1api.Query(ctx, fmt.Sprintf("histogram_quantile(%f, rate(response_latency_ms_bucket{app=\"testapp\", client_id=\"ingress-nginx.ingress-nginx.serviceaccount.identity.linkerd.cluster.local\"}[1m]))", percentile), time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("Error querying prometheus: %v", err)
 	}
@@ -44,10 +44,7 @@ func GetLatencyMetrics(service_name string, percentile float64) (map[string]floa
 			return nil, errors.New("No results returned")
 		}
 		for _, sample := range vec {
-			sample_map := metricToMap(sample.Metric)
-			if sample_map["service"] == service_name && sample_map["path"] != "" {
-				metric_map[sample_map["path"]] = float64(sample.Value)
-			}
+			metric_map[deployment_name] = float64(sample.Value)
 		}
 	} else {
 		return nil, errors.New("Wrong result type")
