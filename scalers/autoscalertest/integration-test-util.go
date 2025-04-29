@@ -25,6 +25,27 @@ func IntAssertIntsEqual(i1 int, i2 int) {
 	}
 }
 
+func IntSummarizeActions(mm *MockMetrics) {
+	vscales := 0
+	changereplicas := 0
+	deletes := 0
+	for _, d := range mm.Actions {
+		if d.Type == VscaleAction {
+			vscales++
+		} else if d.Type == ChangeReplicaCountAction {
+			changereplicas++
+		} else if d.Type == DeletePodAction {
+			deletes++
+		}
+	}
+
+	fmt.Println("<<< actions performed: ")
+	fmt.Printf("%d vscales\n", vscales)
+	fmt.Printf("%d replica count changes\n", changereplicas)
+	fmt.Printf("%d deletes\n", deletes)
+	fmt.Println(">>>")
+}
+
 func IntAssertAction(mm *MockMetrics, a Action) {
 	if len(mm.Actions) == 0 {
 		panic(fmt.Sprintf("no actions found, expected %s", a.Type))

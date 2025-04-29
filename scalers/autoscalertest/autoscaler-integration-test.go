@@ -6,6 +6,7 @@ import (
 
 	"github.com/tholiang/podoscaler/scalers/autoscaler"
 	"github.com/tholiang/podoscaler/scalers/util"
+	"k8s.io/client-go/kubernetes"
 )
 
 func integration_make_autoscaler(node_avail_threshold float64, downscale_threshold float64, namespace string, Maps int64, LatencyThreshold int64, mm *MockMetrics) (autoscaler.Autoscaler, error) {
@@ -32,30 +33,74 @@ func integration_make_autoscaler(node_avail_threshold float64, downscale_thresho
 	return a, nil
 }
 
-func reset_dummy(a autoscaler.Autoscaler) {
+func reset_dummy(clientset kubernetes.Interface) {
 	fmt.Println("<<< reseting dummy deployment >>>")
-	err := util.ChangeReplicaCount("default", "dummy", 1, a.Clientset)
+	err := util.ChangeReplicaCount("default", "dummy", 1, clientset)
 	IntAssertNoError(err)
 
-	time.Sleep(1 * time.Second)
-
-	podlist, err := util.GetPodListForDeployment(a.Clientset, "dummy", "default")
+	// wait for hscale to work
+	timeout_millis := 5000
+	for range timeout_millis / 500 { // gross
+		podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+		IntAssertNoError(err)
+		if len(podlist.Items) == 1 {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	IntAssertIntsEqual(len(podlist.Items), 1)
+	IntAssertIntsEqual(1, len(podlist.Items))
 
 	podname := podlist.Items[0].Name
-	err = util.VScale(a.Clientset, podname, "dummy-container", "300m")
+	err = util.VScale(clientset, podname, "dummy-container", "300m")
 	IntAssertNoError(err)
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(250 * time.Millisecond)
 
-	podlist, err = util.GetPodListForDeployment(a.Clientset, "dummy", "default")
+	podlist, err = util.GetPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	IntAssertIntsEqual(len(podlist.Items), 1)
+	IntAssertIntsEqual(1, len(podlist.Items))
 	newsize := podlist.Items[0].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
-	IntAssertIntsEqual(int(newsize), 300)
+	IntAssertIntsEqual(300, int(newsize))
 
 	fmt.Println("<<< reset successful >>>")
+	fmt.Println()
+}
+
+func add_dummy_pod(clientset kubernetes.Interface) {
+	fmt.Println("<<< \"manually\" adding new dummy pod >>>")
+	err := util.ChangeReplicaCount("default", "dummy", 1, clientset)
+	IntAssertNoError(err)
+
+	podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+	IntAssertNoError(err)
+	starting_pod_ct := len(podlist.Items)
+
+	err = util.ChangeReplicaCount("default", "dummy", starting_pod_ct+1, clientset)
+	IntAssertNoError(err)
+
+	// wait for hscale to work
+	timeout_millis := 5000
+	for range timeout_millis / 500 { // gross
+		podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+		IntAssertNoError(err)
+		if len(podlist.Items) == starting_pod_ct+1 {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	podlist, err = util.GetPodListForDeployment(clientset, "dummy", "default")
+	IntAssertNoError(err)
+	IntAssertIntsEqual(starting_pod_ct+1, len(podlist.Items))
+
+	// check sizes
+	for i := range starting_pod_ct + 1 {
+		podsize := podlist.Items[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+		IntAssertIntsEqual(300, int(podsize))
+	}
+
+	fmt.Println("<<< addition successful >>>")
 	fmt.Println()
 }
 
@@ -65,6 +110,9 @@ func reset_dummy(a autoscaler.Autoscaler) {
 /* all start with 1 pod at 300m cpu */
 
 func IntegrationTest_BasicStable() {
+	name := "Test_BasicStable"
+	fmt.Printf("<<< %s >>>\n", name)
+
 	// setup
 	mm := CreateIntMockMetrics()
 
@@ -72,18 +120,21 @@ func IntegrationTest_BasicStable() {
 	a, err := integration_make_autoscaler(0.2, 0.85, "default", 500, 100, mm)
 	IntAssertNoError(err)
 
-	reset_dummy(a)
+	reset_dummy(a.Clientset)
 
 	err = a.RunRound()
 	IntAssertNoError(err)
 
+	IntSummarizeActions(mm)
 	IntAssertNoActions(mm)
 
-	fmt.Println("<<< Test_BasicStable passed! >>>")
-	fmt.Println()
+	fmt.Printf("<<< %s passed! >>>\n\n", name)
 }
 
 func IntegrationTest_BasicVscaleUp() {
+	name := "Test_BasicVscaleUp"
+	fmt.Printf("<<< %s >>>\n", name)
+
 	// values to test
 	correctEndPods := []PodData{
 		{PodName: "pod", NodeName: "minikube", ContainerName: "container", CpuRequests: 330}, // string values don't matter here
@@ -101,10 +152,12 @@ func IntegrationTest_BasicVscaleUp() {
 	a, err := integration_make_autoscaler(0.2, 0.85, "default", 400, 100, mm)
 	IntAssertNoError(err)
 
-	reset_dummy(a)
+	reset_dummy(a.Clientset)
 
 	err = a.RunRound()
 	IntAssertNoError(err)
+
+	IntSummarizeActions(mm)
 
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "330m"})
 	IntAssertNoActions(mm)
@@ -113,11 +166,13 @@ func IntegrationTest_BasicVscaleUp() {
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 
-	fmt.Println("<<< Test_BasicVscaleUp passed! >>>")
-	fmt.Println()
+	fmt.Printf("<<< %s passed! >>>\n\n", name)
 }
 
 func IntegrationTest_BasicHscaleUp() {
+	name := "Test_BasicHscaleUp"
+	fmt.Printf("<<< %s >>>\n", name)
+
 	// values to test
 	correctEndPods := []PodData{
 		{PodName: "pod1", NodeName: "minikube", ContainerName: "container", CpuRequests: 450},
@@ -136,10 +191,12 @@ func IntegrationTest_BasicHscaleUp() {
 	a, err := integration_make_autoscaler(0.2, 0.85, MOCK_DEPLOYMENT_NAMESPACE, 500, 100, mm)
 	IntAssertNoError(err)
 
-	reset_dummy(a)
+	reset_dummy(a.Clientset)
 
 	err = a.RunRound()
 	IntAssertNoError(err)
+
+	IntSummarizeActions(mm)
 
 	IntAssertAction(mm, Action{Type: ChangeReplicaCountAction, Namespace: "default", DeploymentName: "dummy", ReplicaCt: 2})
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod1", ContainerName: "container", CpuRequests: "450m"})
@@ -150,14 +207,87 @@ func IntegrationTest_BasicHscaleUp() {
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 
-	fmt.Println("<<< Test_BasicHscaleUp passed! >>>")
-	fmt.Println()
+	fmt.Printf("<<< %s passed! >>>\n\n", name)
+}
+
+func IntegrationTest_BasicVscaleDown() {
+	name := "Test_BasicVscaleDown"
+	fmt.Printf("<<< %s >>>\n", name)
+
+	// values to test
+	correctEndPods := []PodData{
+		{PodName: "pod1", NodeName: "minikube", ContainerName: "container", CpuRequests: 177}, // ceil(150 / 0.85) = 177
+	}
+
+	// setup
+	mm := CreateIntMockMetrics()
+	mm.Latency = MOCK_LATENCY_THRESHOLD * 0.5
+	mm.RelDeploymentUtil = 0.5
+
+	// test
+	a, err := integration_make_autoscaler(0.2, 0.85, MOCK_DEPLOYMENT_NAMESPACE, 500, 100, mm)
+	IntAssertNoError(err)
+
+	reset_dummy(a.Clientset)
+
+	err = a.RunRound()
+	IntAssertNoError(err)
+
+	IntSummarizeActions(mm)
+
+	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "177m"})
+	IntAssertNoActions(mm)
+
+	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	IntAssertNoError(err)
+	IntAssertPodListsEqual(podlist, correctEndPods)
+
+	fmt.Printf("<<< %s passed! >>>\n\n", name)
+}
+
+func IntegrationTest_BasicHscaleDown() {
+	name := "Test_BasicHscaleDown"
+	fmt.Printf("<<< %s >>>\n", name)
+
+	// values to test
+	correctEndPods := []PodData{
+		{PodName: "pod1", NodeName: "minikube", ContainerName: "container", CpuRequests: 353}, // ceil(300 / 0.85) = 353
+	}
+
+	// setup
+	mm := CreateIntMockMetrics()
+	mm.Latency = MOCK_LATENCY_THRESHOLD * 0.5
+	mm.RelDeploymentUtil = 0.5
+
+	// test
+	a, err := integration_make_autoscaler(0.2, 0.85, MOCK_DEPLOYMENT_NAMESPACE, 500, 100, mm)
+	IntAssertNoError(err)
+
+	reset_dummy(a.Clientset)
+	add_dummy_pod(a.Clientset) // start two pods at 300m
+
+	err = a.RunRound()
+	IntAssertNoError(err)
+
+	IntSummarizeActions(mm)
+
+	IntAssertAction(mm, Action{Type: ChangeReplicaCountAction, Namespace: "default", DeploymentName: "dummy", ReplicaCt: 1})
+	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "353m"})
+	IntAssertNoActions(mm)
+
+	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	IntAssertNoError(err)
+	IntAssertPodListsEqual(podlist, correctEndPods)
+
+	fmt.Printf("<<< %s passed! >>>\n\n", name)
 }
 
 func RunIntegrationTests() {
 	IntegrationTest_BasicStable()
 	IntegrationTest_BasicVscaleUp()
 	IntegrationTest_BasicHscaleUp()
+	IntegrationTest_BasicVscaleDown()
+	IntegrationTest_BasicHscaleDown()
 
 	fmt.Println("<<< TESTS PASSED SUCCESSFULLY >>>")
 }

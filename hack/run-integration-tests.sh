@@ -13,7 +13,7 @@ kubectl apply -f ./deploy/deploy-autoscaler-test.yaml
 echo
 echo "<<< RUNNING INTEGRATION TESTS >>>"
 
-sleep 20
+sleep 15
 
 kubectl logs autoscaler-test
 
