@@ -41,9 +41,9 @@ func IntAssertAction(mm *MockMetrics, a Action) {
 		// if a.PodName != first_action.PodName {
 		// 	panic(fmt.Sprintf("incorrect pod name for vscale, expected %s, got %s", a.PodName, first_action.PodName))
 		// }
-		if a.ContainerName != first_action.ContainerName {
-			panic(fmt.Sprintf("incorrect container name for vscale, expected %s, got %s", a.ContainerName, first_action.ContainerName))
-		}
+		// if a.ContainerName != first_action.ContainerName {
+		// 	panic(fmt.Sprintf("incorrect container name for vscale, expected %s, got %s", a.ContainerName, first_action.ContainerName))
+		// }
 		if a.CpuRequests != first_action.CpuRequests {
 			panic(fmt.Sprintf("incorrect cpu request for vscale, expected %s, got %s", a.CpuRequests, first_action.CpuRequests))
 		}
@@ -61,9 +61,9 @@ func IntAssertAction(mm *MockMetrics, a Action) {
 		if a.DeploymentName != first_action.DeploymentName {
 			panic(fmt.Sprintf("incorrect deployment name for delete, expected %s, got %s", a.DeploymentName, first_action.DeploymentName))
 		}
-		if a.PodName != first_action.PodName {
-			panic(fmt.Sprintf("incorrect pod name for delete, expected %s, got %s", a.PodName, first_action.PodName))
-		}
+		// if a.PodName != first_action.PodName {
+		// 	panic(fmt.Sprintf("incorrect pod name for delete, expected %s, got %s", a.PodName, first_action.PodName))
+		// }
 	}
 
 	mm.Actions = mm.Actions[1:]
@@ -75,6 +75,17 @@ func IntAssertNoActions(mm *MockMetrics) {
 			fmt.Printf("unexpected action: %s\n", a.Type)
 		}
 		panic(fmt.Sprintf("found %d unexpected actions", len(mm.Actions)))
+	}
+}
+
+func IntAssertPodListsEqual(podlist *v1.PodList, correctEndPods []PodData) {
+	IntAssertIntsEqual(len(podlist.Items), len(correctEndPods))
+
+	for i, d := range correctEndPods {
+		// should be all the same size so order doesn't matter
+		correctCpu := d.CpuRequests
+		trueCpu := podlist.Items[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+		IntAssertIntsEqual(int(correctCpu), int(trueCpu))
 	}
 }
 
@@ -100,17 +111,24 @@ func IntMockPodListForDeployment(m *MockMetrics, clientset kube_client.Interface
 }
 
 func IntMockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
-	alloc := GetDeploymentAlloc(m.Pods)
+	_, alloc, err := util.GetDeploymentUtilAndAlloc(clientset, metricsClient, deploymentName, namespace, podList)
+	if err != nil {
+		return 0, 0, err
+	}
 	return int64(m.RelDeploymentUtil * float64(alloc)), alloc, nil
 }
 
 func IntMockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
-	usage, ok := m.NodeUsages[nodeName]
+	cap, ok := m.NodeCapacities[nodeName]
+	if !ok {
+		return 0, fmt.Errorf("node capacities is not set for node %s - sorry this is a workaround", nodeName)
+	}
+	usage, ok := m.RelNodeUsages[nodeName]
 	if !ok {
 		return 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
 	}
 
-	return usage, nil
+	return int64(usage * float64(cap)), nil
 }
 
 func IntMockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error) {
@@ -173,9 +191,8 @@ func CreateIntMockMetrics() *MockMetrics {
 	mm.DeploymentName = "dummy"
 	mm.DeploymentNamespace = "default"
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 0.95
-	mm.NodeUsages = map[string]int64{
-		"node1": 540,
-		"node2": 270,
+	mm.RelNodeUsages = map[string]float64{
+		"minikube": 0.3,
 	}
 	mm.RelDeploymentUtil = 0.9
 

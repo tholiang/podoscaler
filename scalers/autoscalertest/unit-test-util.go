@@ -201,12 +201,16 @@ func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface,
 }
 
 func MockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
-	usage, ok := m.NodeUsages[nodeName]
+	alloc, ok := m.NodeAllocables[nodeName]
+	if !ok {
+		return 0, fmt.Errorf("couldn't find allocable for node %s", nodeName)
+	}
+	usage, ok := m.RelNodeUsages[nodeName]
 	if !ok {
 		return 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
 	}
 
-	return usage, nil
+	return int64(usage * float64(alloc)), nil
 }
 
 func MockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error) {
@@ -323,9 +327,9 @@ func CreateSimpleMockMetrics() *MockMetrics {
 		"pod3": {"pod3", "node2", "container", 300},
 	}
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 0.95
-	mm.NodeUsages = map[string]int64{
-		"node1": 540,
-		"node2": 270,
+	mm.RelNodeUsages = map[string]float64{
+		"node1": 0.54,
+		"node2": 0.27,
 	}
 	mm.NodeAllocables = map[string]int64{
 		"node1": 400,

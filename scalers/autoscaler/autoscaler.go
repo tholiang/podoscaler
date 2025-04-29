@@ -27,9 +27,9 @@ type Autoscaler struct {
 	Maps                          int64
 	LatencyThreshold              int64
 
-	Metrics           AutoscalerMetrics
-	clientset         kube_client.Interface
-	metrics_clientset *metrics_client.Clientset
+	Metrics          AutoscalerMetrics
+	Clientset        kube_client.Interface
+	MetricsClientset *metrics_client.Clientset
 }
 
 func (a *Autoscaler) Init() error {
@@ -41,11 +41,11 @@ func (a *Autoscaler) Init() error {
 	}
 
 	// creates the clientset
-	a.clientset, err = a.Metrics.GetClientset(config)
+	a.Clientset, err = a.Metrics.GetClientset(config)
 	if err != nil {
 		return err
 	}
-	a.metrics_clientset, err = a.Metrics.GetMetricsClientset(config)
+	a.MetricsClientset, err = a.Metrics.GetMetricsClientset(config)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (a *Autoscaler) RunRound() error {
 	fmt.Println("--- New Scaling Round ---")
 
 	// Get all deployments in the namespace
-	deployments, err := a.Metrics.GetAllDeploymentsFromNamespace(a.clientset, a.DeploymentNamespace)
+	deployments, err := a.Metrics.GetAllDeploymentsFromNamespace(a.Clientset, a.DeploymentNamespace)
 	if err != nil {
 		fmt.Printf("Failed to get deployments: %s\n", err.Error())
 		return err
@@ -69,13 +69,13 @@ func (a *Autoscaler) RunRound() error {
 		deploymentName := deployment.Name
 		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
-		podList, err := a.Metrics.GetPodListForDeployment(a.clientset, deploymentName, a.DeploymentNamespace)
+		podList, err := a.Metrics.GetPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
 		if err != nil {
 			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
 		}
 
-		utilization, alloc, err := a.Metrics.GetDeploymentUtilAndAlloc(a.clientset, a.metrics_clientset, deploymentName, a.DeploymentNamespace, podList)
+		utilization, alloc, err := a.Metrics.GetDeploymentUtilAndAlloc(a.Clientset, a.MetricsClientset, deploymentName, a.DeploymentNamespace, podList)
 		if err != nil {
 			fmt.Printf("Failed to get average utilization and allocation for deployment %s: %s\n", deploymentName, err.Error())
 			continue
@@ -99,13 +99,13 @@ func (a *Autoscaler) RunRound() error {
 			// vscale
 			hasNoCongested := true
 			for _, pod := range podList.Items {
-				usage, err := a.Metrics.GetNodeUsage(a.metrics_clientset, pod.Spec.NodeName)
+				usage, err := a.Metrics.GetNodeUsage(a.MetricsClientset, pod.Spec.NodeName)
 				if err != nil {
 					fmt.Printf("Failed to get node usage for pod %s: %s\n", pod.Name, err.Error())
 					continue
 				}
 
-				allocable, capacity, err := a.Metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				allocable, capacity, err := a.Metrics.GetNodeAllocableAndCapacity(a.Clientset, pod.Spec.NodeName)
 				if err != nil {
 					fmt.Printf("Failed to get node allocable and capacity for pod %s: %s\n", pod.Name, err.Error())
 					continue
@@ -123,7 +123,7 @@ func (a *Autoscaler) RunRound() error {
 				if additionalAllocation > allocable {
 					// create new pod on uncongested node and delete old pod
 					a.hScale(idealReplicaCt+1, deploymentName)
-					a.Metrics.DeletePod(a.clientset, pod.Name, a.DeploymentNamespace)
+					a.Metrics.DeletePod(a.Clientset, pod.Name, a.DeploymentNamespace)
 					a.hScale(idealReplicaCt, deploymentName)
 				}
 			}
@@ -166,7 +166,7 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 
 // in-place scale all pods to the given CPU request
 func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
-	podList, err := a.Metrics.GetPodListForDeployment(a.clientset, deploymentName, a.DeploymentNamespace)
+	podList, err := a.Metrics.GetPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
 	reqstr := fmt.Sprintf("%dm", millis)
 	for _, pod := range podList.Items {
 		container := pod.Spec.Containers[0] // TODO: handle multiple containers
-		err = a.Metrics.VScale(a.clientset, pod.Name, container.Name, reqstr)
+		err = a.Metrics.VScale(a.Clientset, pod.Name, container.Name, reqstr)
 	}
 
 	return err
@@ -184,5 +184,5 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
 func (a *Autoscaler) hScale(idealReplicaCt int, deploymentName string) error {
 	fmt.Printf("Changing count to %d\n", idealReplicaCt)
 
-	return a.Metrics.ChangeReplicaCount(a.DeploymentNamespace, deploymentName, idealReplicaCt, a.clientset)
+	return a.Metrics.ChangeReplicaCount(a.DeploymentNamespace, deploymentName, idealReplicaCt, a.Clientset)
 }

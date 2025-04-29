@@ -39,7 +39,7 @@ type MockMetrics struct {
 	DeploymentNamespace string
 	Pods                MockPodList
 	Latency             float64
-	NodeUsages          map[string]int64
+	RelNodeUsages       map[string]float64
 	NodeAllocables      map[string]int64
 	NodeCapacities      map[string]int64
 	RelDeploymentUtil   float64

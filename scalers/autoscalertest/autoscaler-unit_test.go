@@ -46,9 +46,9 @@ func TestUnit_BasicVscaleUp(t *testing.T) {
 	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
 	mm.RelDeploymentUtil = 1.1
-	mm.NodeUsages = map[string]int64{
-		"node1": 900,
-		"node2": 500,
+	mm.RelNodeUsages = map[string]float64{
+		"node1": 0.9,
+		"node2": 0.5,
 	}
 
 	// test
@@ -80,9 +80,9 @@ func TestUnit_BasicHscaleUp(t *testing.T) {
 	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
 	mm.RelDeploymentUtil = 2
-	mm.NodeUsages = map[string]int64{
-		"node1": 900,
-		"node2": 500,
+	mm.RelNodeUsages = map[string]float64{
+		"node1": 0.9,
+		"node2": 0.5,
 	}
 
 	// test
@@ -172,9 +172,9 @@ func TestUnit_NoCongestion(t *testing.T) {
 	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
 	mm.RelDeploymentUtil = 0.9
-	mm.NodeUsages = map[string]int64{
-		"node1": 600,
-		"node2": 300,
+	mm.RelNodeUsages = map[string]float64{
+		"node1": 0.6,
+		"node2": 0.3,
 	}
 
 	// test
@@ -202,9 +202,9 @@ func TestUnit_PodMove(t *testing.T) {
 	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
 	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
 	mm.RelDeploymentUtil = 1.1
-	mm.NodeUsages = map[string]int64{
-		"node1": 1000,
-		"node2": 500,
+	mm.RelNodeUsages = map[string]float64{
+		"node1": 1,
+		"node2": 0.5,
 	}
 	mm.NodeAllocables = map[string]int64{
 		"node1": 10,
