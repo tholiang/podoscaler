@@ -99,13 +99,13 @@ func IntAssertNoActions(mm *MockMetrics) {
 	}
 }
 
-func IntAssertPodListsEqual(podlist *v1.PodList, correctEndPods []PodData) {
-	IntAssertIntsEqual(len(podlist.Items), len(correctEndPods))
+func IntAssertPodListsEqual(podlist []v1.Pod, correctEndPods []PodData) {
+	IntAssertIntsEqual(len(podlist), len(correctEndPods))
 
 	for i, d := range correctEndPods {
 		// should be all the same size so order doesn't matter
 		correctCpu := d.CpuRequests
-		trueCpu := podlist.Items[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+		trueCpu := podlist[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 		IntAssertIntsEqual(int(correctCpu), int(trueCpu))
 	}
 }
@@ -127,11 +127,11 @@ func IntMockAllDeploymentsFromNamespace(m *MockMetrics, clientset kube_client.In
 	return util.GetAllDeploymentsFromNamespace(clientset, namespace)
 }
 
-func IntMockPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error) {
-	return util.GetPodListForDeployment(clientset, deploymentName, namespace)
+func IntMockReadyPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
+	return util.GetReadyPodListForDeployment(clientset, deploymentName, namespace)
 }
 
-func IntMockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
+func IntMockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList []v1.Pod) (int64, int64, error) {
 	_, alloc, err := util.GetDeploymentUtilAndAlloc(clientset, metricsClient, deploymentName, namespace, podList)
 	if err != nil {
 		return 0, 0, err
@@ -199,7 +199,7 @@ func CreateIntMockMetrics() *MockMetrics {
 	mm.MockGetClientset = IntMockClientset
 	mm.MockGetMetricsClientset = IntMockMetricsClientset
 	mm.MockGetAllDeploymentsFromNamespace = IntMockAllDeploymentsFromNamespace
-	mm.MockGetPodListForDeployment = IntMockPodListForDeployment
+	mm.MockGetReadyPodListForDeployment = IntMockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = IntMockDeploymentUtilAndAlloc
 	mm.MockGetNodeUsage = IntMockNodeUsage
 	mm.MockGetNodeAllocableAndCapacity = IntMockNodeAllocableAndCapacity

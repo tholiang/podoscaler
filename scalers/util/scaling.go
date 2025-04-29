@@ -36,11 +36,11 @@ func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) 
 
 	// check every 500ms for 30s or until all replicas are ready
 	err = wait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, 30*time.Second, true, func(ctx context.Context) (bool, error) {
-		deployment, err := clientset.AppsV1().Deployments(req.DeploymentNamespace).Get(context.TODO(), req.DeploymentName, metav1.GetOptions{})
+		podlist, err := GetReadyPodListForDeployment(clientset, req.DeploymentName, req.DeploymentNamespace)
 		if err != nil {
 			return false, err
 		}
-		return deployment.Status.ReadyReplicas == req.Replicas, nil
+		return len(podlist) == int(req.Replicas), nil
 	})
 	if err != nil {
 		return err

@@ -38,30 +38,20 @@ func reset_dummy(clientset kubernetes.Interface) {
 	err := util.ChangeReplicaCount("default", "dummy", 1, clientset)
 	IntAssertNoError(err)
 
-	// wait for hscale to work
-	timeout_millis := 5000
-	for range timeout_millis / 500 { // gross
-		podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
-		IntAssertNoError(err)
-		if len(podlist.Items) == 1 {
-			break
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-	podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+	podlist, err := util.GetReadyPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	IntAssertIntsEqual(1, len(podlist.Items))
+	IntAssertIntsEqual(1, len(podlist))
 
-	podname := podlist.Items[0].Name
+	podname := podlist[0].Name
 	err = util.VScale(clientset, podname, "dummy-container", "300m")
 	IntAssertNoError(err)
 
-	time.Sleep(250 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
-	podlist, err = util.GetPodListForDeployment(clientset, "dummy", "default")
+	podlist, err = util.GetReadyPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	IntAssertIntsEqual(1, len(podlist.Items))
-	newsize := podlist.Items[0].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+	IntAssertIntsEqual(1, len(podlist))
+	newsize := podlist[0].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 	IntAssertIntsEqual(300, int(newsize))
 
 	fmt.Println("<<< reset successful >>>")
@@ -73,9 +63,9 @@ func add_dummy_pod(clientset kubernetes.Interface) {
 	err := util.ChangeReplicaCount("default", "dummy", 1, clientset)
 	IntAssertNoError(err)
 
-	podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+	podlist, err := util.GetReadyPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	starting_pod_ct := len(podlist.Items)
+	starting_pod_ct := len(podlist)
 
 	err = util.ChangeReplicaCount("default", "dummy", starting_pod_ct+1, clientset)
 	IntAssertNoError(err)
@@ -83,20 +73,20 @@ func add_dummy_pod(clientset kubernetes.Interface) {
 	// wait for hscale to work
 	timeout_millis := 5000
 	for range timeout_millis / 500 { // gross
-		podlist, err := util.GetPodListForDeployment(clientset, "dummy", "default")
+		podlist, err := util.GetReadyPodListForDeployment(clientset, "dummy", "default")
 		IntAssertNoError(err)
-		if len(podlist.Items) == starting_pod_ct+1 {
+		if len(podlist) == starting_pod_ct+1 {
 			break
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
-	podlist, err = util.GetPodListForDeployment(clientset, "dummy", "default")
+	podlist, err = util.GetReadyPodListForDeployment(clientset, "dummy", "default")
 	IntAssertNoError(err)
-	IntAssertIntsEqual(starting_pod_ct+1, len(podlist.Items))
+	IntAssertIntsEqual(starting_pod_ct+1, len(podlist))
 
 	// check sizes
 	for i := range starting_pod_ct + 1 {
-		podsize := podlist.Items[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+		podsize := podlist[i].Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
 		IntAssertIntsEqual(300, int(podsize))
 	}
 
@@ -162,7 +152,7 @@ func IntegrationTest_BasicVscaleUp() {
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "330m"})
 	IntAssertNoActions(mm)
 
-	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	podlist, err := util.GetReadyPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 
@@ -203,7 +193,7 @@ func IntegrationTest_BasicHscaleUp() {
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod2", ContainerName: "container", CpuRequests: "450m"})
 	IntAssertNoActions(mm)
 
-	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	podlist, err := util.GetReadyPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 
@@ -238,7 +228,7 @@ func IntegrationTest_BasicVscaleDown() {
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "177m"})
 	IntAssertNoActions(mm)
 
-	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	podlist, err := util.GetReadyPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 
@@ -275,7 +265,7 @@ func IntegrationTest_BasicHscaleDown() {
 	IntAssertAction(mm, Action{Type: VscaleAction, PodName: "pod", ContainerName: "container", CpuRequests: "353m"})
 	IntAssertNoActions(mm)
 
-	podlist, err := util.GetPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
+	podlist, err := util.GetReadyPodListForDeployment(a.Clientset, mm.DeploymentName, mm.DeploymentNamespace)
 	IntAssertNoError(err)
 	IntAssertPodListsEqual(podlist, correctEndPods)
 

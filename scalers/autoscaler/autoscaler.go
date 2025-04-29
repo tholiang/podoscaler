@@ -69,7 +69,7 @@ func (a *Autoscaler) RunRound() error {
 		deploymentName := deployment.Name
 		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
-		podList, err := a.Metrics.GetPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
+		podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
 		if err != nil {
 			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
@@ -83,7 +83,7 @@ func (a *Autoscaler) RunRound() error {
 		utilPercent := float64(utilization) / float64(alloc)
 		fmt.Printf("Deployment %s: Utilization at %d of %d allocation\n", deploymentName, utilization, alloc)
 
-		numPods := len(podList.Items)
+		numPods := len(podList)
 		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(a.Maps)))
 		newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
 
@@ -98,7 +98,7 @@ func (a *Autoscaler) RunRound() error {
 
 			// vscale
 			hasNoCongested := true
-			for _, pod := range podList.Items {
+			for _, pod := range podList {
 				usage, err := a.Metrics.GetNodeUsage(a.MetricsClientset, pod.Spec.NodeName)
 				if err != nil {
 					fmt.Printf("Failed to get node usage for pod %s: %s\n", pod.Name, err.Error())
@@ -166,13 +166,13 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 
 // in-place scale all pods to the given CPU request
 func (a *Autoscaler) vScaleTo(millis int64, deploymentName string) error {
-	podList, err := a.Metrics.GetPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
+	podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
 	if err != nil {
 		return err
 	}
 
 	reqstr := fmt.Sprintf("%dm", millis)
-	for _, pod := range podList.Items {
+	for _, pod := range podList {
 		container := pod.Spec.Containers[0] // TODO: handle multiple containers
 		err = a.Metrics.VScale(a.Clientset, pod.Name, container.Name, reqstr)
 	}

@@ -153,10 +153,10 @@ func MakeDeployment(deploymentName string, namespace string, replicas int32) app
 	return deployment
 }
 
-func MockPodListToPodList(mock MockPodList) *v1.PodList {
-	podlist := new(v1.PodList) // bad practice probably
+func MockPodListToPodList(mock MockPodList) []v1.Pod {
+	podlist := []v1.Pod{}
 	for _, v := range mock {
-		podlist.Items = append(podlist.Items, MakePod(v.PodName, v.NodeName, v.ContainerName, v.CpuRequests))
+		podlist = append(podlist, MakePod(v.PodName, v.NodeName, v.ContainerName, v.CpuRequests))
 	}
 	return podlist
 }
@@ -191,17 +191,17 @@ func MockAllDeploymentsFromNamespace(m *MockMetrics, clientset kube_client.Inter
 	return deploymentList, nil
 }
 
-func MockPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) (*v1.PodList, error) {
+func MockReadyPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
 	return MockPodListToPodList(m.Pods), nil
 }
 
-func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
+func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList []v1.Pod) (int64, int64, error) {
 	alloc := GetDeploymentAlloc(m.Pods)
 	return int64(m.RelDeploymentUtil * float64(alloc)), alloc, nil
 }
 
 func MockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
-	alloc, ok := m.NodeAllocables[nodeName]
+	cap, ok := m.NodeCapacities[nodeName]
 	if !ok {
 		return 0, fmt.Errorf("couldn't find allocable for node %s", nodeName)
 	}
@@ -210,7 +210,7 @@ func MockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, node
 		return 0, fmt.Errorf("couldn't find usage for node %s", nodeName)
 	}
 
-	return int64(usage * float64(alloc)), nil
+	return int64(usage * float64(cap)), nil
 }
 
 func MockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error) {
@@ -309,7 +309,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetClientset = MockClientset
 	mm.MockGetMetricsClientset = MockMetricsClientset
 	mm.MockGetAllDeploymentsFromNamespace = MockAllDeploymentsFromNamespace
-	mm.MockGetPodListForDeployment = MockPodListForDeployment
+	mm.MockGetReadyPodListForDeployment = MockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = MockDeploymentUtilAndAlloc
 	mm.MockGetNodeUsage = MockNodeUsage
 	mm.MockGetNodeAllocableAndCapacity = MockNodeAllocableAndCapacity
