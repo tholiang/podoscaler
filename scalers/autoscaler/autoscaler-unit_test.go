@@ -160,8 +160,74 @@ func TestBasicHscaleDown(t *testing.T) {
 	testutil.AssertPodListsEqual(mm.Pods, correctEndPods, t)
 }
 
-// no congestion
+func TestNoCongestion(t *testing.T) {
+	// values to test
+	correctEndPods := map[string]testutil.PodData{
+		"pod1": {PodName: "pod1", NodeName: "node1", ContainerName: "container", CpuRequests: 300},
+		"pod2": {PodName: "pod2", NodeName: "node1", ContainerName: "container", CpuRequests: 300},
+		"pod3": {PodName: "pod3", NodeName: "node2", ContainerName: "container", CpuRequests: 300},
+	}
 
-// pod move
+	// setup
+	mm := testutil.CreateSimpleMockMetrics() // start 3 pods at 300 each
+	mm.Latency = testutil.MOCK_LATENCY_THRESHOLD * 1.5
+	mm.DeploymentUtil = 850
+	mm.NodeUsages = map[string]int64{
+		"node1": 600,
+		"node2": 300,
+	}
+
+	// test
+	a := MakeAutoscaler(0.2, 0.85, testutil.MOCK_DEPLOYMENT_NAMESPACE, 400, 100, mm)
+	err := a.Init()
+	testutil.AssertNoError(err, t)
+
+	err = a.RunRound()
+	testutil.AssertNoError(err, t)
+
+	testutil.AssertNoActions(mm, t)
+
+	testutil.AssertPodListsEqual(mm.Pods, correctEndPods, t)
+}
+
+func TestPodMove(t *testing.T) {
+	// values to test
+	correctEndPods := map[string]testutil.PodData{
+		"pod2": {PodName: "pod2", NodeName: "node1", ContainerName: "container", CpuRequests: 330},
+		"pod3": {PodName: "pod3", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
+		"pod4": {PodName: "pod4", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
+	}
+
+	// setup
+	mm := testutil.CreateSimpleMockMetrics() // start 3 pods at 300 each
+	mm.Latency = testutil.MOCK_LATENCY_THRESHOLD * 1.5
+	mm.DeploymentUtil = 990
+	mm.NodeUsages = map[string]int64{
+		"node1": 1000,
+		"node2": 500,
+	}
+	mm.NodeAllocables = map[string]int64{
+		"node1": 10,
+		"node2": 700,
+	}
+
+	// test
+	a := MakeAutoscaler(0.2, 0.85, testutil.MOCK_DEPLOYMENT_NAMESPACE, 400, 100, mm)
+	err := a.Init()
+	testutil.AssertNoError(err, t)
+
+	err = a.RunRound()
+	testutil.AssertNoError(err, t)
+
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.ChangeReplicaCountAction, Namespace: testutil.MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: testutil.MOCK_DEPLOYMENT_NAME, ReplicaCt: 4})
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.DeletePodAction, Namespace: testutil.MOCK_DEPLOYMENT_NAMESPACE, PodName: "pod1"})
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.ChangeReplicaCountAction, Namespace: testutil.MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: testutil.MOCK_DEPLOYMENT_NAME, ReplicaCt: 3})
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.VscaleAction, PodName: "pod2", ContainerName: "container", CpuRequests: "330m"})
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.VscaleAction, PodName: "pod3", ContainerName: "container", CpuRequests: "330m"})
+	testutil.AssertAction(mm, t, testutil.Action{Type: testutil.VscaleAction, PodName: "pod4", ContainerName: "container", CpuRequests: "330m"})
+	testutil.AssertNoActions(mm, t)
+
+	testutil.AssertPodListsEqual(mm.Pods, correctEndPods, t)
+}
 
 // error handling?

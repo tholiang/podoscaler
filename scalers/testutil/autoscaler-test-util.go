@@ -29,10 +29,16 @@ func AssertIntsEqual(i1 int, i2 int, t *testing.T) {
 }
 
 func AssertAction(mm *MockMetrics, t *testing.T, a Action) {
+	if len(mm.Actions) == 0 {
+		t.Errorf("no actions found, expected %s", a.Type)
+		return
+	}
+
 	// compare first action to given and pop
 	first_action := mm.Actions[0]
 	if first_action.Type != a.Type {
 		t.Errorf("incorrect action type, expected %s, got %s", a.Type, first_action.Type)
+		return
 	}
 
 	if a.Type == VscaleAction {
@@ -77,33 +83,6 @@ func AssertNoActions(mm *MockMetrics, t *testing.T) {
 	}
 }
 
-func GetStringIntMapKeys(m map[string]int) []string {
-	keys := make([]string, len(m))
-
-	i := 0
-	for k := range m {
-		keys[i] = k
-		i++
-	}
-
-	sort.Strings(keys)
-	return keys
-}
-
-func AssertStringIntMapsEqual(m1 map[string]int, m2 map[string]int, t *testing.T) {
-	testkeys := GetStringIntMapKeys(m1)
-	correctkeys := GetStringIntMapKeys(m2)
-	if !slices.Equal(testkeys, correctkeys) {
-		t.Errorf("map key mismatch")
-	}
-
-	for _, k := range testkeys {
-		if m1[k] != m2[k] {
-			t.Errorf("map mismatch at %s, expected %d, got %d", k, m2[k], m1[k])
-		}
-	}
-}
-
 func GetPodListKeys(m MockPodList) []string {
 	keys := make([]string, len(m))
 
@@ -122,6 +101,7 @@ func AssertPodListsEqual(l1 MockPodList, l2 MockPodList, t *testing.T) {
 	correctkeys := GetPodListKeys(l2)
 	if !slices.Equal(testkeys, correctkeys) {
 		t.Errorf("podlist key mismatch")
+		return
 	}
 
 	for _, k := range testkeys {
@@ -271,16 +251,32 @@ func MockVScale(m *MockMetrics, clientset kube_client.Interface, podname string,
 }
 
 func MockChangeReplicaCount(m *MockMetrics, namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
+	podnames := GetPodListKeys(m.Pods)
 	numpods := len(m.Pods)
 	if numpods < replicaCt {
-		for i := numpods + 1; i <= replicaCt; i++ {
-			podname := fmt.Sprintf("pod%d", i)
+		largestpid := 0
+		for _, n := range podnames {
+			cand, _ := strconv.Atoi(n[3:])
+			if cand > largestpid {
+				largestpid = cand
+			}
+		}
+
+		for i := numpods; i < replicaCt; i++ {
+			podname := fmt.Sprintf("pod%d", largestpid+1)
 			m.Pods[podname] = PodData{PodName: podname, NodeName: "node2", ContainerName: "container", CpuRequests: 300}
+			m.NodeAllocables["node2"] -= 300
+			largestpid++
 		}
 	} else if numpods > replicaCt {
-		for i := numpods; i > replicaCt; i-- {
-			podname := fmt.Sprintf("pod%d", i)
+		for i := numpods - 1; i >= replicaCt; i-- {
+			podname := podnames[i]
+			poddata, ok := m.Pods[podname]
+			if !ok {
+				return fmt.Errorf("failed to delete pod, no pod found with name: %s", podname)
+			}
 			delete(m.Pods, podname)
+			m.NodeAllocables[poddata.NodeName] += poddata.CpuRequests
 		}
 	}
 
@@ -290,13 +286,15 @@ func MockChangeReplicaCount(m *MockMetrics, namespace string, deploymentName str
 }
 
 func MockDeletePod(m *MockMetrics, clientset kube_client.Interface, podname string, namespace string) error {
-	_, ok := m.Pods[podname]
+	poddata, ok := m.Pods[podname]
 	if !ok {
 		return fmt.Errorf("failed to delete pod, no pod found with name: %s", podname)
 	}
 
 	delete(m.Pods, podname)
-	m.Actions = append(m.Actions, Action{Type: DeletePodAction, PodName: namespace, Namespace: namespace})
+	m.NodeAllocables[poddata.NodeName] += poddata.CpuRequests
+
+	m.Actions = append(m.Actions, Action{Type: DeletePodAction, PodName: podname, Namespace: namespace})
 	return nil
 }
 

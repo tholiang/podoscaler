@@ -133,7 +133,7 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 
-				alloc, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
+				allocable, capacity, err := a.metrics.GetNodeAllocableAndCapacity(a.clientset, pod.Spec.NodeName)
 				if err != nil {
 					fmt.Printf("Failed to get node allocable and capacity for pod %s: %s\n", pod.Name, err.Error())
 					continue
@@ -147,9 +147,8 @@ func (a *Autoscaler) RunRound() error {
 				hasNoCongested = false
 
 				currentRequests := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
-				unallocatedCPU := capacity - alloc
 				additionalAllocation := newRequests - currentRequests
-				if additionalAllocation > unallocatedCPU {
+				if additionalAllocation > allocable {
 					// create new pod on uncongested node and delete old pod
 					a.hScale(idealReplicaCt+1, deploymentName)
 					a.metrics.DeletePod(a.clientset, pod.Name, a.deployment_namespace)
@@ -158,12 +157,11 @@ func (a *Autoscaler) RunRound() error {
 			}
 
 			if hasNoCongested {
-				fmt.Printf("Deployment %s: External error detected, exiting\n", deploymentName)
+				fmt.Printf("Deployment %s: External bottleneck detected; doing nothing\n", deploymentName)
 				return nil
 			} else {
 				a.vScaleTo(newRequests, deploymentName)
 			}
-			time.Sleep(5 * time.Second)
 		} else if utilPercent < a.downscale_utilization_threshold {
 			if idealReplicaCt < numPods {
 				a.hScale(idealReplicaCt, deploymentName)
@@ -172,7 +170,6 @@ func (a *Autoscaler) RunRound() error {
 			hysteresisMargin := 1 / a.downscale_utilization_threshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
 			a.vScaleTo(newRequests, deploymentName)
-			time.Sleep(5 * time.Second)
 		}
 	}
 
