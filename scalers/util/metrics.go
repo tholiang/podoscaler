@@ -17,6 +17,8 @@ import (
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
+const AUTOSCALE_LABEL = "vecter=true"
+
 func getPodMetricsListForDeployment(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string) (*v1beta1.PodMetricsList, error) {
 	ctx := context.TODO()
 
@@ -116,3 +118,9 @@ func GetAllDeploymentsFromNamespace(clientset kube_client.Interface, namespace s
 	}
 	return deployments, nil
 }
+
+
+func GetControlledPods(clientset kube_client.Interface) (*v1.PodList, error) {
+	return clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{LabelSelector: AUTOSCALE_LABEL})
+}
+

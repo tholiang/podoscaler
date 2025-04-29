@@ -70,6 +70,7 @@ func (a *Autoscaler) RunRound() error {
 		fmt.Printf("Processing deployment: %s\n", deploymentName)
 
 		podList, err := a.Metrics.GetReadyPodListForDeployment(a.Clientset, deploymentName, a.DeploymentNamespace)
+		podList, err := util.GetControlledPods(clientset)
 		if err != nil {
 			fmt.Printf("Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
