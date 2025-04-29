@@ -42,7 +42,7 @@ type MockMetrics struct {
 	NodeUsages          map[string]int64
 	NodeAllocables      map[string]int64
 	NodeCapacities      map[string]int64
-	DeploymentUtil      int64
+	RelDeploymentUtil   float64
 
 	MockGetKubernetesConfig            func(m *MockMetrics) (*rest.Config, error)
 	MockGetClientset                   func(m *MockMetrics, config *rest.Config) (*kube_client.Clientset, error)

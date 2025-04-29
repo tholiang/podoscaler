@@ -196,7 +196,8 @@ func MockPodListForDeployment(m *MockMetrics, clientset kube_client.Interface, d
 }
 
 func MockDeploymentUtilAndAlloc(m *MockMetrics, clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList *v1.PodList) (int64, int64, error) {
-	return m.DeploymentUtil, GetDeploymentAlloc(m.Pods), nil
+	alloc := GetDeploymentAlloc(m.Pods)
+	return int64(m.RelDeploymentUtil * float64(alloc)), alloc, nil
 }
 
 func MockNodeUsage(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error) {
@@ -334,7 +335,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 		"node1": 1000,
 		"node2": 1000,
 	}
-	mm.DeploymentUtil = 810
+	mm.RelDeploymentUtil = 0.9
 
 	return mm
 }
