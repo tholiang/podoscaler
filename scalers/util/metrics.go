@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"fmt"
+
 	// "math"
 	// "slices"
 	// "strings"
@@ -14,6 +15,8 @@ import (
 	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
 )
+
+const AUTOSCALE_LABEL = "vecter=true"
 
 func getPodMetricsListForDeployment(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string) (*v1beta1.PodMetricsList, error) {
 	ctx := context.TODO()
@@ -81,3 +84,8 @@ func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName strin
 
 	return allocatable, capacity, nil
 }
+
+func GetControlledPods(clientset kube_client.Interface) (*v1.PodList, error) {
+	return clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{LabelSelector: AUTOSCALE_LABEL})
+}
+

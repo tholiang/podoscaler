@@ -15,19 +15,25 @@ import (
 )
 
 /* --- GLOBAL VARS --- */
-var clientset kube_client.Interface
-var metrics_clientset *metrics_client.Clientset
+var (
+	clientset         kube_client.Interface
+	metrics_clientset *metrics_client.Clientset
+)
 
 const PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
 
-const MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
-const DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
+const (
+	MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
+	DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
+)
 
 // TODO: support multiple deployments
-const DEPLOYMENT_NAME = "testapp"
-const DEPLOYMENT_NAMESPACE = "default"
-const MAPS = 500 // in millicpus
-const LATENCY_THRESHOLD = 100 // in milliseconds
+const (
+	DEPLOYMENT_NAME      = "testapp"
+	DEPLOYMENT_NAMESPACE = "default"
+	MAPS                 = 500 // in millicpus
+	LATENCY_THRESHOLD    = 100 // in milliseconds
+)
 
 func main() {
 	/* --- CONFIGURATION LOGIC --- */
@@ -54,7 +60,7 @@ func main() {
 	for {
 		fmt.Println("--- New Scaling Round ---")
 
-		podList, err := util.GetPodListForDeployment(clientset, DEPLOYMENT_NAME, DEPLOYMENT_NAMESPACE)
+		podList, err := util.GetControlledPods(clientset)
 		if err != nil {
 			fmt.Printf("Failed to get pod list: %s\n", err.Error())
 			continue
@@ -88,7 +94,7 @@ func main() {
 					fmt.Printf("Failed to get node allocatable and capacity: %s\n", err.Error())
 					continue
 				}
-				
+
 				availablePercentage := float64(allocatable) / float64(capacity)
 				if availablePercentage > MIN_NODE_AVAILABILITY_THRESHOLD {
 					continue
