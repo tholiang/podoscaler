@@ -42,6 +42,9 @@ func hScaleFromHSR(clientset kube_client.Interface, req HorizontalScaleRequest) 
 		}
 		return deployment.Status.ReadyReplicas == req.Replicas, nil
 	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
