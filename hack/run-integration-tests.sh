@@ -2,8 +2,21 @@
 set -e
 eval $(minikube -p minikube docker-env)
 
-docker image build -t dummy-img ./dummy
+echo "<<< BUILDING DUMMY APP >>>"
+docker image build -q -t dummy-img ./dummy
 kubectl apply -f ./deploy/deploy-dummy.yaml
 
-docker image build -t autoscaler-img --build-arg SRC_DIR=./main ./scalers
+echo "<<< BUILDING AUTOSCALER >>>"
+docker image build -q -t autoscaler-img --build-arg BUILD_TAG=autoscalertest ./scalers
 kubectl apply -f ./deploy/deploy-autoscaler-test.yaml
+
+echo
+echo "<<< RUNNING INTEGRATION TESTS >>>"
+
+sleep 20
+
+kubectl logs autoscaler-test
+
+echo
+kubectl delete deployment dummy
+kubectl delete pod autoscaler-test

@@ -4,7 +4,7 @@ FROM golang:1.24-alpine as builder
 RUN apk add --no-cache git
 
 # Set build arg and working directory
-ARG SRC_DIR
+ARG BUILD_TAG
 WORKDIR /app
 
 # Copy go.mod and go.sum first — maximize cache
@@ -15,10 +15,10 @@ RUN go mod download
 COPY ./autoscaler ./autoscaler
 COPY ./util ./util
 COPY ./autoscalertest ./autoscalertest
-COPY ${SRC_DIR} ./${SRC_DIR}
+COPY ./main ./main
 
 # Build the binary
-RUN go build -x -o exec ./${SRC_DIR}
+RUN go build -tags=${BUILD_TAG} -x -o exec ./main
 
 # Final image — minimal
 FROM alpine:latest

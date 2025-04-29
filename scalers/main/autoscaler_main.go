@@ -1,10 +1,12 @@
+//go:build autoscaler
+// +build autoscaler
+
 package main
 
 import (
 	"time"
 
 	autoscaler "github.com/tholiang/podoscaler/scalers/autoscaler"
-	test "github.com/tholiang/podoscaler/scalers/autoscalertest"
 )
 
 func run_autoscaler() {
@@ -35,6 +37,5 @@ func run_autoscaler() {
 }
 
 func main() {
-	// run_autoscaler()
-	test.RunIntegrationTests()
+	run_autoscaler()
 }
