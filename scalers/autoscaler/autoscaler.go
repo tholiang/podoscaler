@@ -91,8 +91,16 @@ func (a *Autoscaler) RunRound() error {
 			fmt.Printf("Deployment %s: Above SLO\n", deploymentName)
 			// hscale
 			if idealReplicaCt > numPods {
-				a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
-				a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("HSCALE: failed to hscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
+				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("HSCALE: failed to vscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
 				continue
 			}
 
@@ -122,9 +130,17 @@ func (a *Autoscaler) RunRound() error {
 				additionalAllocation := newRequests - currentRequests
 				if additionalAllocation > allocable {
 					// create new pod on uncongested node and delete old pod
-					a.hScale(idealReplicaCt+1, deploymentName, deploymentNamespace)
+					err = a.hScale(idealReplicaCt+1, deploymentName, deploymentNamespace)
+					if err != nil {
+						fmt.Printf("Failed to add afinity pod for deployment %s: %s\n", deploymentName, err.Error())
+						continue
+					}
 					a.Metrics.DeletePod(a.Clientset, pod.Name, deploymentNamespace)
-					a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+					err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+					if err != nil {
+						fmt.Printf("Failed to remove afinity pod for deployment %s: %s\n", deploymentName, err.Error())
+						continue
+					}
 				}
 			}
 
@@ -132,16 +148,28 @@ func (a *Autoscaler) RunRound() error {
 				fmt.Printf("Deployment %s: External bottleneck detected; doing nothing\n", deploymentName)
 				return nil
 			} else {
-				a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("VSCALE: failed to vscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
 			}
 		} else if utilPercent < a.DownscaleUtilizationThreshold {
 			if idealReplicaCt < numPods {
-				a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("Failed to hscale down deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
 			}
 
 			hysteresisMargin := 1 / a.DownscaleUtilizationThreshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
-			a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+			err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+			if err != nil {
+				fmt.Printf("Failed to vscale down deployment %s: %s\n", deploymentName, err.Error())
+				continue
+			}
 		}
 	}
 
