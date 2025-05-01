@@ -13,6 +13,8 @@ import (
 	"github.com/prometheus/common/model"
 )
 
+const PROMETHEUS_QUERY = `histogram_quantile(0.9, rate(response_latency_ms_bucket{service="frontend-hotelres", target_port="5000", status_code="200"}[1m]))`
+
 // return map of endpoint path to percentile latency
 func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	prom_url := os.Getenv("PROMETHEUS_URL")
@@ -29,7 +31,7 @@ func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]f
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	result, warnings, err := v1api.Query(ctx, fmt.Sprintf("histogram_quantile(%f, rate(response_latency_ms_bucket{app=\"testapp\", client_id=\"ingress-nginx.ingress-nginx.serviceaccount.identity.linkerd.cluster.local\"}[1m]))", percentile), time.Now())
+	result, warnings, err := v1api.Query(ctx, PROMETHEUS_QUERY, time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("Error querying prometheus: %v", err)
 	}
