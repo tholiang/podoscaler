@@ -87,7 +87,6 @@ func (a *Autoscaler) RunRound() error {
 		numPods := len(podList)
 		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(a.Maps)))
 		newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
-		newRequests = max(newRequests, DEFAULT_MIN_REQUESTS)
 
 		if a.isSLOViolated(deploymentName) {
 			fmt.Printf("Deployment %s: Above SLO\n", deploymentName)
@@ -156,7 +155,7 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 			}
-		} else if utilPercent < a.DownscaleUtilizationThreshold {
+		} else if utilPercent < a.DownscaleUtilizationThreshold && newRequests > DEFAULT_MIN_REQUESTS {
 			if idealReplicaCt < numPods {
 				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
 				if err != nil {
