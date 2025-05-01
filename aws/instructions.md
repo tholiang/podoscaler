@@ -58,7 +58,14 @@ Wait until everyone of them is running.
 To check which pod is on which node use:
 `. ~/setup/utils/observe.sh`
 
+Change inbound settings
+`. ~/setup/utils/edit_securitygroup_inbound_rules.sh`
+
 This will also spit out an ip:port at which your hotel reservation application can be accessed. You can cURL this ip:port to get an html for instance
+`bash ~/setup/utils/get_frontend_ip.sh -n deathstarbench`
+
+Label deployments to be autoscaled
+`. ~/setup/vecter/label-hotelres.sh`
 
 ## Load generation
 

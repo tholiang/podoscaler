@@ -10,7 +10,7 @@ linkerd check --pre
 linkerd install --crds | kubectl apply -f -
 linkerd install | kubectl apply -f -
 linkerd check
-linkerd viz install | kubectl apply -f -
+linkerd viz install -f linkerd-viz-values.yaml | kubectl apply -f -
 linkerd check
 
 # install metrics server

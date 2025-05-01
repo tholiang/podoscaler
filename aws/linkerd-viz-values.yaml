@@ -1,0 +1,4 @@
+prometheus:
+  globalConfig:
+    scrape_timeout: 5s
+    scrape_interval: 5s
