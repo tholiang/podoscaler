@@ -8,9 +8,12 @@ namespace="deathstarbench"
 label_key="vecter"
 label_value="true"
 
+kubectl scale deployment -n deathstarbench --all --replicas=1
+
 for deployment in "${deployments[@]}"; do
-  echo "Labeling $deployment..."
+  echo "Labeling and setting resources for $deployment..."
   kubectl label deployment "$deployment" "$label_key=$label_value" -n "$namespace" --overwrite
+  kubectl patch deployment $deployment -n deathstarbench --type="json" -p="[{'op': 'replace', 'path': '/spec/template/spec/containers/0/resources', 'value': {'requests': {'cpu': '100m'}}}]"
 done
 
 # build the autoscaler image, tag it, and push to dockerhub

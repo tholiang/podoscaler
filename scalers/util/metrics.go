@@ -77,13 +77,21 @@ func GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *m
 
 	utilMilli := int64(0)
 	for _, podMetrics := range podMetricsList.Items {
-		container := podMetrics.Containers[0] // TODO: handle multiple containers
+		idx := 0
+		if podMetrics.Containers[0].Name == "linkerd-proxy" {
+			idx = 1
+		}
+		container := podMetrics.Containers[idx] // TODO: handle multiple containers
 		alloc := container.Usage.Cpu().MilliValue()
 		utilMilli += alloc
 	}
 	allocMilli := int64(0)
 	for _, pod := range podList {
-		allocMilli += pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue() // TODO: handle multiple containers
+		idx := 0
+		if pod.Spec.Containers[0].Name == "linkerd-proxy" {
+			idx = 1
+		}
+		allocMilli += pod.Spec.Containers[idx].Resources.Requests.Cpu().MilliValue() // TODO: handle multiple containers
 	}
 
 	return utilMilli, allocMilli, nil
