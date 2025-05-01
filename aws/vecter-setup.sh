@@ -15,3 +15,4 @@ linkerd check
 
 # install metrics server
 kubectl apply -f ~/setup/components.yaml
+kubectl apply -f ~/setup/vecter/podoscaler/deploy/rbac.yaml

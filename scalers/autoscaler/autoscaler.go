@@ -17,6 +17,7 @@ const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
 const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
 const DEFAULT_MAPS = 500              // in millicpus
+const DEFAULT_MIN_REQUESTS = 100     // in millicpus
 const DEFAULT_LATENCY_THRESHOLD = 40 // in milliseconds
 
 type Autoscaler struct {
@@ -154,7 +155,7 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 			}
-		} else if utilPercent < a.DownscaleUtilizationThreshold {
+		} else if utilPercent < a.DownscaleUtilizationThreshold && newRequests > DEFAULT_MIN_REQUESTS {
 			if idealReplicaCt < numPods {
 				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
 				if err != nil {
@@ -186,6 +187,10 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 		return false
 	}
 
+	if _, ok := prometheus_metrics[deploymentName]; !ok {
+		fmt.Printf("No latency metrics found for deployment %s\n", deploymentName)
+		return false
+	}
 	fmt.Printf("90th percentile latency: %f\n", prometheus_metrics[deploymentName])
 	dist := prometheus_metrics[deploymentName] / float64(a.LatencyThreshold)
 

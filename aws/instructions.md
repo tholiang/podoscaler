@@ -1,5 +1,11 @@
 # AWS Kubernetes setup instructions
 
+## First time
+
+Check that kops version is >= 1.32.0
+
+Check that kubectl version is >= 1.32.0
+
 ## Kubernetes cluster setup
 
 Enter head node: (pem key file attached)
@@ -38,6 +44,9 @@ IF IT DOES NOT, LET. KNOW
 
 With this, you will have a kubernetes cluster running. You can check the nodes in your cluster using:
 `kubectl get nodes`
+
+Check that the version of kubectl and the server is >= 1.32.0 using:
+`kubectl version`
 
 ## yaas aws setup
 
