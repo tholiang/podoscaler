@@ -34,7 +34,6 @@ type VerticalPatchResourceSpec struct {
 
 type VerticalPatchContainerResources struct {
 	Requests VerticalPatchResourceSpec `json:"requests"`
-	Limits   VerticalPatchResourceSpec `json:"limits"`
 }
 
 type VerticalPatchSpecContainer struct {
@@ -71,5 +70,4 @@ type VerticalScaleRequest struct {
 	PodName       string `json:"podname"`
 	ContainerName string `json:"containername"`
 	CpuRequests   string `json:"cpurequests"`
-	CpuLimits     string `json:"cpulimits"` // we can get rid of this ig
 }
