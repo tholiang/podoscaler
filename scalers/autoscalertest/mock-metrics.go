@@ -52,7 +52,7 @@ type MockMetrics struct {
 	MockGetNodeUsage                 func(m *MockMetrics, metricsClient *metrics_client.Clientset, nodeName string) (int64, error)
 	MockGetNodeAllocableAndCapacity  func(m *MockMetrics, clientset kube_client.Interface, nodeName string) (int64, int64, error)
 	MockGetLatencyMetrics            func(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error)
-	MockVScale                       func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error
+	MockVScale                       func(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error
 	MockChangeReplicaCount           func(m *MockMetrics, namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
 	MockGetControlledDeployments     func(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error)
 	MockDeletePod                    func(m *MockMetrics, clientset kube_client.Interface, podname string, namespace string) error
@@ -84,8 +84,8 @@ func (m *MockMetrics) GetNodeAllocableAndCapacity(clientset kube_client.Interfac
 func (m *MockMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
 	return m.MockGetLatencyMetrics(m, deployment_name, percentile)
 }
-func (m *MockMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
-	return m.MockVScale(m, clientset, podname, containername, cpurequests)
+func (m *MockMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {
+	return m.MockVScale(m, clientset, podname, containername, cpurequests, namespace)
 }
 func (m *MockMetrics) ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
 	return m.MockChangeReplicaCount(m, namespace, deploymentName, replicaCt, clientset)

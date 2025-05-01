@@ -42,7 +42,7 @@ func reset_dummy(clientset kubernetes.Interface) {
 	IntAssertIntsEqual(1, len(podlist))
 
 	podname := podlist[0].Name
-	err = util.VScale(clientset, podname, "dummy-container", "300m")
+	err = util.VScale(clientset, podname, "dummy-container", "300m", "default")
 	IntAssertNoError(err)
 
 	time.Sleep(100 * time.Millisecond)

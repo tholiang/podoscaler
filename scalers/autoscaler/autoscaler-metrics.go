@@ -46,8 +46,8 @@ func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(deployment_name string, per
 	return util.GetLatencyMetrics(deployment_name, percentile)
 }
 
-func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
-	return util.VScale(clientset, podname, containername, cpurequests)
+func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {
+	return util.VScale(clientset, podname, containername, cpurequests, namespace)
 }
 
 func (m *DefaultAutoscalerMetrics) ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {

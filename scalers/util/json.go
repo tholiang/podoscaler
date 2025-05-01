@@ -50,12 +50,11 @@ type VerticalPatch struct {
 	Spec VerticalPatchSpec `json:"spec"`
 }
 
-func create_vpatch(containername string, cpurequests string, cpulimits string) ([]byte, error) {
+func create_vpatch(containername string, cpurequests string) ([]byte, error) {
 	containerspec := VerticalPatchSpecContainer{
 		Name: containername,
 		Resources: VerticalPatchContainerResources{
 			Requests: VerticalPatchResourceSpec{cpurequests},
-			Limits:   VerticalPatchResourceSpec{cpulimits},
 		},
 	}
 

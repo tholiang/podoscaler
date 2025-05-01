@@ -233,7 +233,7 @@ func MockLatencyMetrics(m *MockMetrics, deployment_name string, percentile float
 	return metrics, nil
 }
 
-func MockVScale(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
+func MockVScale(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {
 	data, ok := m.Pods[podname]
 	if !ok {
 		return fmt.Errorf("failed to get pod with name: %s", podname)
@@ -250,7 +250,7 @@ func MockVScale(m *MockMetrics, clientset kube_client.Interface, podname string,
 
 	m.Pods[podname] = data
 
-	m.Actions = append(m.Actions, Action{Type: VscaleAction, PodName: podname, ContainerName: containername, CpuRequests: cpurequests})
+	m.Actions = append(m.Actions, Action{Type: VscaleAction, PodName: podname, ContainerName: containername, CpuRequests: cpurequests, Namespace: namespace})
 
 	return nil
 }

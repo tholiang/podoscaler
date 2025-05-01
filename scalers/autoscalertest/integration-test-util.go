@@ -163,13 +163,13 @@ func IntMockLatencyMetrics(m *MockMetrics, deployment_name string, percentile fl
 	return metrics, nil
 }
 
-func IntMockVScale(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string) error {
-	err := util.VScale(clientset, podname, containername, cpurequests)
+func IntMockVScale(m *MockMetrics, clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {
+	err := util.VScale(clientset, podname, containername, cpurequests, namespace)
 	if err != nil {
 		return err
 	}
 
-	m.Actions = append(m.Actions, Action{Type: VscaleAction, PodName: podname, ContainerName: containername, CpuRequests: cpurequests})
+	m.Actions = append(m.Actions, Action{Type: VscaleAction, PodName: podname, ContainerName: containername, CpuRequests: cpurequests, Namespace: namespace})
 	return nil
 }
 

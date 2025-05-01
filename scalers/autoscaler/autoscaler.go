@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"time"
 
 	kube_client "k8s.io/client-go/kubernetes"
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
@@ -54,7 +55,7 @@ func (a *Autoscaler) Init() error {
 }
 
 func (a *Autoscaler) RunRound() error {
-	fmt.Println("--- New Scaling Round ---")
+	fmt.Printf("--- New round at %s ---\n", time.Now().Format(time.RFC3339))
 
 	// Get all deployments in the namespace
 	deployments, err := a.Metrics.GetControlledDeployments(a.Clientset)
@@ -62,7 +63,7 @@ func (a *Autoscaler) RunRound() error {
 		fmt.Printf("Failed to get deployments: %s\n", err.Error())
 		return err
 	}
-
+	
 	for _, deployment := range deployments.Items {
 		deploymentName := deployment.Name
 		deploymentNamespace := deployment.Namespace
@@ -201,10 +202,14 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string, deploymentNam
 	reqstr := fmt.Sprintf("%dm", millis)
 	for _, pod := range podList {
 		container := pod.Spec.Containers[0] // TODO: handle multiple containers
-		err = a.Metrics.VScale(a.Clientset, pod.Name, container.Name, reqstr)
+		err = a.Metrics.VScale(a.Clientset, pod.Name, container.Name, reqstr, deploymentNamespace)
+		if err != nil {
+			fmt.Printf("Failed to vscale pod %s: %s\n", pod.Name, err.Error())
+			return err
+		}
 	}
 
-	return err
+	return nil
 }
 
 // is blocking (see `hScaleFromHSR`)
