@@ -16,7 +16,7 @@ func run_autoscaler() {
 		PrometheusUrl:                 autoscaler.DEFAULT_PROMETHEUS_URL,
 		MinNodeAvailabilityThreshold:  autoscaler.DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD,
 		DownscaleUtilizationThreshold: autoscaler.DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD,
-		DeploymentNamespace:           autoscaler.DEFAULT_DEPLOYMENT_NAMESPACE,
+
 		Maps:                          autoscaler.DEFAULT_MAPS,
 		LatencyThreshold:              autoscaler.DEFAULT_LATENCY_THRESHOLD,
 		Metrics:                       am,

@@ -15,9 +15,8 @@ const DEFAULT_PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:
 const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
 const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
-const DEFAULT_DEPLOYMENT_NAMESPACE = "default"
 const DEFAULT_MAPS = 500              // in millicpus
-const DEFAULT_LATENCY_THRESHOLD = 100 // in milliseconds
+const DEFAULT_LATENCY_THRESHOLD = 40 // in milliseconds
 
 type Autoscaler struct {
 	PrometheusUrl                 string

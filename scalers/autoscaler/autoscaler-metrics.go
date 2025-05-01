@@ -61,3 +61,7 @@ func (m *DefaultAutoscalerMetrics) GetControlledDeployments(clientset kube_clien
 func (m *DefaultAutoscalerMetrics) DeletePod(clientset kube_client.Interface, podname string, namespace string) error {
 	return util.DeletePod(clientset, podname, namespace)
 }
+
+func (m *DefaultAutoscalerMetrics) GetReadyPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
+	return util.GetReadyPodListForDeployment(clientset, deploymentName, namespace)
+}
