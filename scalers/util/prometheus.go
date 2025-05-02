@@ -13,7 +13,7 @@ import (
 	"github.com/prometheus/common/model"
 )
 
-const PROMETHEUS_QUERY = `histogram_quantile(0.9, rate(response_latency_ms_bucket{service="frontend-hotelres", target_port="5000", status_code="200"}[1m]))`
+const PROMETHEUS_QUERY = `aws_elb_latency_p90`
 
 // return map of endpoint path to percentile latency
 func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
