@@ -11,14 +11,18 @@ import (
 )
 
 /* --- CONFIG VARS --- */
-const DEFAULT_PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
+const DEFAULT_PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090"
 
-const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.4
-const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
+const (
+	DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.4
+	DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
+)
 
-const DEFAULT_MAPS = 500             // in millicpus
-const DEFAULT_MIN_REQUESTS = 100     // in millicpus
-const DEFAULT_LATENCY_THRESHOLD = 40 // in milliseconds
+const (
+	DEFAULT_MAPS              = 500 // in millicpus
+	DEFAULT_MIN_REQUESTS      = 100 // in millicpus
+	DEFAULT_LATENCY_THRESHOLD = 40  // in milliseconds
+)
 
 type Autoscaler struct {
 	PrometheusUrl                 string
