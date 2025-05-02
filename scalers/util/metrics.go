@@ -36,6 +36,12 @@ func getPodMetricsListForDeployment(clientset kube_client.Interface, metricsClie
 	})
 }
 
+func GetNodeList(clientset kube_client.Interface) (*v1.NodeList, error) {
+	ctx := context.TODO()
+
+	return clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+}
+
 func GetReadyPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
 	ctx := context.TODO()
 

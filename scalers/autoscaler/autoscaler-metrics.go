@@ -26,6 +26,10 @@ func (m *DefaultAutoscalerMetrics) GetMetricsClientset(config *rest.Config) (*me
 	return metrics_client.NewForConfig(config)
 }
 
+func (m *DefaultAutoscalerMetrics) GetNodeList(clientset kube_client.Interface) (*v1.NodeList, error) {
+	return util.GetNodeList(clientset)
+}
+
 func (m *DefaultAutoscalerMetrics) GetPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
 	return util.GetReadyPodListForDeployment(clientset, deploymentName, namespace)
 }

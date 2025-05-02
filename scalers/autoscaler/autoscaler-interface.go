@@ -12,6 +12,7 @@ type AutoscalerMetrics interface {
 	GetKubernetesConfig() (*rest.Config, error)
 	GetClientset(config *rest.Config) (*kube_client.Clientset, error)
 	GetMetricsClientset(config *rest.Config) (*metrics_client.Clientset, error)
+	GetNodeList(clientset kube_client.Interface) (*v1.NodeList, error)
 	GetReadyPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error)
 	GetDeploymentUtilAndAlloc(clientset kube_client.Interface, metricsClient *metrics_client.Clientset, deploymentName, namespace string, podList []v1.Pod) (int64, int64, error)
 	GetNodeUsage(metricsClient *metrics_client.Clientset, nodeName string) (int64, error)

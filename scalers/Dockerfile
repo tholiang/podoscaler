@@ -14,7 +14,7 @@ RUN go mod download
 # Copy only necessary source directories
 COPY ./autoscaler ./autoscaler
 COPY ./util ./util
-COPY ./autoscalertest ./autoscalertest
+# COPY ./autoscalertest ./autoscalertest
 COPY ./main ./main
 
 # Build the binary

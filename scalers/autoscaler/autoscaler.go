@@ -16,7 +16,7 @@ const DEFAULT_PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:
 const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
 const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
-const DEFAULT_MAPS = 500              // in millicpus
+const DEFAULT_MAPS = 500             // in millicpus
 const DEFAULT_MIN_REQUESTS = 100     // in millicpus
 const DEFAULT_LATENCY_THRESHOLD = 40 // in milliseconds
 
@@ -58,13 +58,38 @@ func (a *Autoscaler) Init() error {
 func (a *Autoscaler) RunRound() error {
 	fmt.Printf("\n=== Autoscaler Round %s ===\n", time.Now().Format(time.RFC3339))
 
+	// get node usages
+	fmt.Printf("\nGetting node usages...\n")
+	nodelist, err := a.Metrics.GetNodeList(a.Clientset)
+	if err != nil {
+		fmt.Printf("❌ ERROR: Failed to get node list: %s\n", err.Error())
+		return err
+	}
+
+	for _, node := range nodelist.Items {
+		nodeName := node.Name
+		usage, err := a.Metrics.GetNodeUsage(a.MetricsClientset, nodeName)
+		if err != nil {
+			fmt.Printf("❌ ERROR: Failed to get usage for node %s: %s\n", nodeName, err.Error())
+			continue
+		}
+
+		allocable, capacity, err := a.Metrics.GetNodeAllocableAndCapacity(a.Clientset, nodeName)
+		if err != nil {
+			fmt.Printf("❌ ERROR: Failed to get node metrics for node %s: %s\n", nodeName, err.Error())
+			continue
+		}
+
+		fmt.Printf("%s: %d in use, %d allocable, %d capacity\n", nodeName, usage, allocable, capacity)
+	}
+
 	// Get all deployments in the namespace
 	deployments, err := a.Metrics.GetControlledDeployments(a.Clientset)
 	if err != nil {
 		fmt.Printf("❌ ERROR: Failed to get deployments: %s\n", err.Error())
 		return err
 	}
-	
+
 	for _, deployment := range deployments.Items {
 		deploymentName := deployment.Name
 		deploymentNamespace := deployment.Namespace
@@ -122,13 +147,13 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 
-				unusedCPU := capacity - usage
+				unusedCPU := min(capacity-usage, allocable)
 				unusedPercentage := float64(unusedCPU) / float64(capacity)
 				if unusedPercentage > a.MinNodeAvailabilityThreshold {
 					continue
 				}
 				hasNoCongested = false
-				
+
 				idx := 0
 				if pod.Spec.Containers[0].Name == "linkerd-proxy" {
 					idx = 1
