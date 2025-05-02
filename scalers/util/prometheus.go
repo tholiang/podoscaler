@@ -46,7 +46,7 @@ func GetLatencyMetrics(deployment_name string, percentile float64) (map[string]f
 			return nil, errors.New("No results returned")
 		}
 		for _, sample := range vec {
-			metric_map[deployment_name] = float64(sample.Value) / 1000
+			metric_map[deployment_name] = float64(sample.Value) * 1000
 		}
 	} else {
 		return nil, errors.New("Wrong result type")
