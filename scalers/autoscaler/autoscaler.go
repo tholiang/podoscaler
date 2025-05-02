@@ -13,7 +13,7 @@ import (
 /* --- CONFIG VARS --- */
 const DEFAULT_PROMETHEUS_URL = "http://prometheus.linkerd-viz.svc.cluster.local:9090"
 
-const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.2
+const DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.4
 const DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
 
 const DEFAULT_MAPS = 500             // in millicpus
@@ -125,7 +125,7 @@ func (a *Autoscaler) RunRound() error {
 					fmt.Printf("❌ ERROR: Failed to hscale deployment %s: %s\n", deploymentName, err.Error())
 					continue
 				}
-				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", alloc, newRequests)
+				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", perpodalloc, newRequests)
 				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 				if err != nil {
 					fmt.Printf("❌ ERROR: Failed to vscale deployment %s: %s\n", deploymentName, err.Error())
@@ -178,11 +178,11 @@ func (a *Autoscaler) RunRound() error {
 				}
 			}
 
-			if hasNoCongested {
+			if hasNoCongested || newRequests < perpodalloc {
 				fmt.Printf("ℹ️ External bottleneck detected for %s - no action taken\n", deploymentName)
 				continue
 			} else {
-				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", alloc, newRequests)
+				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", perpodalloc, newRequests)
 				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 				if err != nil {
 					fmt.Printf("❌ ERROR: Failed to vscale deployment %s: %s\n", deploymentName, err.Error())

@@ -120,7 +120,19 @@ func GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName strin
 	}
 
 	capacity := node.Status.Capacity.Cpu().MilliValue()
+
+	podlist, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{
+		FieldSelector: "spec.nodeName=" + nodeName,
+	})
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to get pods on node: %w", err)
+	}
 	allocatable := node.Status.Allocatable.Cpu().MilliValue()
+	for _, pod := range podlist.Items {
+		for _, cont := range pod.Spec.Containers {
+			allocatable -= cont.Resources.Requests.Cpu().MilliValue()
+		}
+	}
 
 	return allocatable, capacity, nil
 }
