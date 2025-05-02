@@ -187,10 +187,10 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 			}
-		} else if utilPercent < a.DownscaleUtilizationThreshold && newRequests > DEFAULT_MIN_REQUESTS {
+		} else if utilPercent < a.DownscaleUtilizationThreshold {
 			if idealReplicaCt < numPods {
 				fmt.Printf("🔄 Downscaling: %d -> %d replicas\n", numPods, idealReplicaCt)
-				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				err = a.hScale(max(idealReplicaCt, 1), deploymentName, deploymentNamespace)
 				if err != nil {
 					fmt.Printf("❌ ERROR: Failed to hscale down deployment %s: %s\n", deploymentName, err.Error())
 					continue
@@ -200,7 +200,7 @@ func (a *Autoscaler) RunRound() error {
 			hysteresisMargin := 1 / a.DownscaleUtilizationThreshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
 			fmt.Printf("🔄 Downscaling: %d -> %d millicpus\n", alloc, newRequests)
-			err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+			err = a.vScaleTo(max(newRequests, DEFAULT_MIN_REQUESTS), deploymentName, deploymentNamespace)
 			if err != nil {
 				fmt.Printf("❌ ERROR: Failed to vscale down deployment %s: %s\n", deploymentName, err.Error())
 				continue
