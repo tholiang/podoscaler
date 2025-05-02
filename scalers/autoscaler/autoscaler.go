@@ -231,11 +231,11 @@ func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
 		return false
 	}
 
-	if _, ok := prometheus_metrics[deploymentName]; !ok {
+	if len(prometheus_metrics) == 0 {
 		fmt.Printf("ℹ️ No latency metrics found for deployment %s\n", deploymentName)
 		return false
 	}
-	latency := prometheus_metrics[deploymentName]
+	latency := prometheus_metrics["p99"] * 1000 // convert from s to ms
 	dist := latency / float64(a.LatencyThreshold)
 	fmt.Printf("📊 Latency metrics: %.2fms (threshold: %dms)\n", latency, a.LatencyThreshold)
 

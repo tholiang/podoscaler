@@ -11,8 +11,7 @@ import (
 	metrics_client "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
-type DefaultAutoscalerMetrics struct {
-}
+type DefaultAutoscalerMetrics struct{}
 
 func (m *DefaultAutoscalerMetrics) GetKubernetesConfig() (*rest.Config, error) {
 	return rest.InClusterConfig()
@@ -47,7 +46,7 @@ func (m *DefaultAutoscalerMetrics) GetNodeAllocableAndCapacity(clientset kube_cl
 }
 
 func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
-	return util.GetLatencyMetrics(deployment_name, percentile)
+	return util.GetLatencyCloudwatch() // WARNING: change
 }
 
 func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {
