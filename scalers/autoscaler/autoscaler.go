@@ -113,6 +113,8 @@ func (a *Autoscaler) RunRound() error {
 		idealReplicaCt := int(math.Ceil(float64(utilization) / float64(a.Maps)))
 		newRequests := int64(math.Ceil(float64(utilization) / float64(idealReplicaCt)))
 
+		perpodalloc := int64(math.Ceil(float64(alloc) / float64(numPods)))
+
 		if a.isSLOViolated(deploymentName) {
 			fmt.Printf("⚠️ SLO violation detected for %s\n", deploymentName)
 			// hscale
@@ -188,6 +190,7 @@ func (a *Autoscaler) RunRound() error {
 				}
 			}
 		} else if utilPercent < a.DownscaleUtilizationThreshold {
+			idealReplicaCt = max(idealReplicaCt, 1)
 			if idealReplicaCt < numPods {
 				fmt.Printf("🔄 Downscaling: %d -> %d replicas\n", numPods, idealReplicaCt)
 				err = a.hScale(max(idealReplicaCt, 1), deploymentName, deploymentNamespace)
@@ -199,8 +202,13 @@ func (a *Autoscaler) RunRound() error {
 
 			hysteresisMargin := 1 / a.DownscaleUtilizationThreshold
 			newRequests = int64(math.Ceil(float64(newRequests) * hysteresisMargin))
-			fmt.Printf("🔄 Downscaling: %d -> %d millicpus\n", alloc, newRequests)
-			err = a.vScaleTo(max(newRequests, DEFAULT_MIN_REQUESTS), deploymentName, deploymentNamespace)
+			newRequests = max(newRequests, DEFAULT_MIN_REQUESTS)
+			if newRequests == perpodalloc {
+				continue
+			}
+
+			fmt.Printf("🔄 Downscaling: %d -> %d millicpus\n", perpodalloc, newRequests)
+			err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 			if err != nil {
 				fmt.Printf("❌ ERROR: Failed to vscale down deployment %s: %s\n", deploymentName, err.Error())
 				continue
