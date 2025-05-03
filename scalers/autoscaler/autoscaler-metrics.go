@@ -1,6 +1,8 @@
 package autoscaler
 
 import (
+	"os"
+
 	util "github.com/tholiang/podoscaler/scalers/util"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -45,8 +47,12 @@ func (m *DefaultAutoscalerMetrics) GetNodeAllocableAndCapacity(clientset kube_cl
 	return util.GetNodeAllocableAndCapacity(clientset, nodeName)
 }
 
-func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(deployment_name string, percentile float64) (map[string]float64, error) {
-	return util.GetLatencyCloudwatch() // WARNING: change
+func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(clientset kube_client.Interface, deployment_name string, percentile float64) (map[string]float64, error) {
+	lb_name, err := util.GetLoadBalancerName(clientset, os.Getenv("AUTOSCALE_NAMESPACE"), os.Getenv("AUTOSCALE_LB"))
+	if err != nil {
+		return nil, err
+	}
+	return util.GetLatencyCloudwatch(lb_name)
 }
 
 func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error {

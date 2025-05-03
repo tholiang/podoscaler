@@ -225,17 +225,17 @@ func (a *Autoscaler) RunRound() error {
 }
 
 func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
-	prometheus_metrics, err := a.Metrics.GetLatencyMetrics(deploymentName, 0.9)
+	metrics, err := a.Metrics.GetLatencyMetrics(deploymentName, 0.9)
 	if err != nil {
 		fmt.Printf("❌ ERROR: Failed to get latency metrics for %s: %s\n", deploymentName, err.Error())
 		return false
 	}
 
-	if len(prometheus_metrics) == 0 {
+	if len(metrics) == 0 {
 		fmt.Printf("ℹ️ No latency metrics found for deployment %s\n", deploymentName)
 		return false
 	}
-	latency := prometheus_metrics["p99"] * 1000 // convert from s to ms
+	latency := metrics["p99"] * 1000 // convert from s to ms
 	dist := latency / float64(a.LatencyThreshold)
 	fmt.Printf("📊 Latency metrics: %.2fms (threshold: %dms)\n", latency, a.LatencyThreshold)
 
