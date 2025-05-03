@@ -2,16 +2,8 @@
 
 set -e
 
-# install gateway crds
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
-
-# install linkerd components
-linkerd check --pre
-linkerd install --crds | kubectl apply -f -
-linkerd install | kubectl apply -f -
-linkerd check
-linkerd viz install -f linkerd-viz-values.yaml | kubectl apply -f -
-linkerd check
+# cloudwatch secrets
+kubectl create secret generic aws-secrets --from-literal=AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --from-literal=AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --from-literal=AWS_REGION=$AWS_REGION
 
 # install metrics server
 kubectl apply -f ~/setup/components.yaml
