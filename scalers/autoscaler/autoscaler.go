@@ -225,7 +225,7 @@ func (a *Autoscaler) RunRound() error {
 }
 
 func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
-	metrics, err := a.Metrics.GetLatencyMetrics(deploymentName, 0.9)
+	metrics, err := a.Metrics.GetLatencyMetrics(a.Clientset, deploymentName, 0.9)
 	if err != nil {
 		fmt.Printf("❌ ERROR: Failed to get latency metrics for %s: %s\n", deploymentName, err.Error())
 		return false
