@@ -71,6 +71,6 @@ func GetLoadBalancerName(clientset kube_client.Interface, namespace string, serv
 		return "", fmt.Errorf("no hostname")
 	}
 	parts := strings.Split(ingress[0].Hostname, "-")
-	fmt.Println("Found load balancer:", parts[0])
+	// fmt.Println("Found load balancer:", parts[0])
 	return parts[0], nil
 }
