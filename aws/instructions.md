@@ -84,7 +84,7 @@ setup cloudwatch
 build and run the autoscaler and watcher
 `./hack/hotel-autoscaler-up`
 
-copy logs into a `.txt` file then run
+copy watcher logs into a `.txt` file then run
 `python ./read-watcher-output.py`
 
 ## Load generation
