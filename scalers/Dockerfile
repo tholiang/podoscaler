@@ -12,9 +12,10 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download
 
 # Copy only necessary source directories
-COPY ./autoscaler ./autoscaler
 COPY ./util ./util
-# COPY ./autoscalertest ./autoscalertest
+RUN if [${BUILD_TAG} = "autoscaler" -o ${BUILD_TAG} = "autoscalertest"]; THEN COPY ./autoscaler ./autoscaler;
+RUN if [${BUILD_TAG} = "autoscalertest"]; THEN COPY ./autoscalertest ./autoscalertest;
+RUN if [${BUILD_TAG} = "watcher"]; THEN COPY ./watcher ./watcher;
 COPY ./main ./main
 
 # Build the binary

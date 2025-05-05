@@ -1,3 +1,6 @@
+//go:build autoscalertest
+// +build autoscalertest
+
 package autoscalertest
 
 import (
@@ -124,7 +127,7 @@ func AssertPodListsEqual(l1 MockPodList, l2 MockPodList, t *testing.T) {
 const MOCK_DEPLOYMENT_NAME = "testapp"
 const MOCK_DEPLOYMENT_NAMESPACE = "default"
 const MOCK_MAPS = 500              // in millicpus
-const MOCK_LATENCY_THRESHOLD = 100 // in milliseconds
+const MOCK_LATENCY_THRESHOLD = 0.1 // in seconds
 
 /* mock util */
 func MakePod(podName string, nodeName string, containerName string, cpuRequests int64) v1.Pod {
@@ -183,6 +186,10 @@ func MockMetricsClientset(m *MockMetrics, config *rest.Config) (*metrics_client.
 	return new(metrics_client.Clientset), nil
 }
 
+func MockNodeList(m *MockMetrics, clientset kube_client.Interface) (*v1.NodeList, error) {
+	return new(v1.NodeList), nil // doesn't matter - just for logs
+}
+
 func MockControlledDeployments(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
 	deploymentList := new(appsv1.DeploymentList)
 	deploymentList.Items = []appsv1.Deployment{
@@ -226,9 +233,9 @@ func MockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Interfac
 	return alloc, cap, nil
 }
 
-func MockLatencyMetrics(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error) {
+func MockLatencyMetrics(m *MockMetrics, clientset kube_client.Interface) (map[string]float64, error) {
 	metrics := map[string]float64{
-		m.DeploymentName: m.Latency,
+		"p99": m.Latency,
 	}
 	return metrics, nil
 }
@@ -308,6 +315,7 @@ func CreateSimpleMockMetrics() *MockMetrics {
 	mm.MockGetKubernetesConfig = MockConfig
 	mm.MockGetClientset = MockClientset
 	mm.MockGetMetricsClientset = MockMetricsClientset
+	mm.MockGetNodeList = MockNodeList
 	mm.MockGetControlledDeployments = MockControlledDeployments
 	mm.MockGetReadyPodListForDeployment = MockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = MockDeploymentUtilAndAlloc

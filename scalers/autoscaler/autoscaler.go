@@ -1,3 +1,6 @@
+//go:build autoscaler || autoscalertest
+// +build autoscaler autoscalertest
+
 package autoscaler
 
 import (
@@ -11,8 +14,6 @@ import (
 )
 
 /* --- CONFIG VARS --- */
-const DEFAULT_PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090"
-
 const (
 	DEFAULT_MIN_NODE_AVAILABILITY_THRESHOLD = 0.4
 	DEFAULT_DOWNSCALE_UTILIZATION_THRESHOLD = 0.85
@@ -225,7 +226,7 @@ func (a *Autoscaler) RunRound() error {
 }
 
 func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
-	metrics, err := a.Metrics.GetLatencyMetrics(a.Clientset, deploymentName, 0.9)
+	metrics, err := a.Metrics.GetLatencyMetrics(a.Clientset)
 	if err != nil {
 		fmt.Printf("❌ ERROR: Failed to get latency metrics for %s: %s\n", deploymentName, err.Error())
 		return false

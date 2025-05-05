@@ -1,3 +1,6 @@
+//go:build autoscaler || autoscalertest
+// +build autoscaler autoscalertest
+
 package autoscaler
 
 import (
@@ -47,7 +50,7 @@ func (m *DefaultAutoscalerMetrics) GetNodeAllocableAndCapacity(clientset kube_cl
 	return util.GetNodeAllocableAndCapacity(clientset, nodeName)
 }
 
-func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(clientset kube_client.Interface, deployment_name string, percentile float64) (map[string]float64, error) {
+func (m *DefaultAutoscalerMetrics) GetLatencyMetrics(clientset kube_client.Interface) (map[string]float64, error) {
 	lb_name, err := util.GetLoadBalancerName(clientset, os.Getenv("AUTOSCALE_NAMESPACE"), os.Getenv("AUTOSCALE_LB"))
 	if err != nil {
 		return nil, err

@@ -1,3 +1,6 @@
+//go:build autoscalertest
+// +build autoscalertest
+
 package autoscalertest
 
 import (
@@ -11,7 +14,7 @@ import (
 
 func integration_make_autoscaler(node_avail_threshold float64, downscale_threshold float64, namespace string, Maps int64, LatencyThreshold int64, mm *MockMetrics) (autoscaler.Autoscaler, error) {
 	a := autoscaler.Autoscaler{
-		PrometheusUrl:                 autoscaler.DEFAULT_PROMETHEUS_URL,
+		PrometheusUrl:                 util.DEFAULT_PROMETHEUS_URL,
 		MinNodeAvailabilityThreshold:  node_avail_threshold,
 		DownscaleUtilizationThreshold: downscale_threshold,
 		Maps:                          Maps,
