@@ -21,5 +21,11 @@ docker image build -t autoscaler-img --build-arg BUILD_TAG=autoscaler ./scalers
 docker tag autoscaler-img kvnz/autoscaler-img
 docker push kvnz/autoscaler-img
 
+# build the autoscaler image, tag it, and push to dockerhub
+docker image build -t watcher-img --build-arg BUILD_TAG=watcher ./scalers
+docker tag watcher-img kvnz/watcher-img
+docker push kvnz/watcher-img
+
 # deploy the autoscaler
 kubectl apply -f ./deploy/deploy-autoscaler.yaml
+kubectl apply -f ./deploy/deploy-watcher.yaml

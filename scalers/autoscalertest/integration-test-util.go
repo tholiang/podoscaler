@@ -1,3 +1,6 @@
+//go:build autoscalertest
+// +build autoscalertest
+
 package autoscalertest
 
 import (
@@ -123,6 +126,10 @@ func IntMockMetricsClientset(m *MockMetrics, config *rest.Config) (*metrics_clie
 	return metrics_client.NewForConfig(config)
 }
 
+func IntMockNodeList(m *MockMetrics, clientset kube_client.Interface) (*v1.NodeList, error) {
+	return util.GetNodeList(clientset)
+}
+
 func IntMockControlledDeployments(m *MockMetrics, clientset kube_client.Interface) (*appsv1.DeploymentList, error) {
 	return util.GetControlledDeployments(clientset)
 }
@@ -156,9 +163,9 @@ func IntMockNodeAllocableAndCapacity(m *MockMetrics, clientset kube_client.Inter
 	return util.GetNodeAllocableAndCapacity(clientset, nodeName)
 }
 
-func IntMockLatencyMetrics(m *MockMetrics, deployment_name string, percentile float64) (map[string]float64, error) {
+func IntMockLatencyMetrics(m *MockMetrics, clientset kube_client.Interface) (map[string]float64, error) {
 	metrics := map[string]float64{
-		m.DeploymentName: m.Latency,
+		"p99": m.Latency,
 	}
 	return metrics, nil
 }
@@ -198,6 +205,7 @@ func CreateIntMockMetrics() *MockMetrics {
 	mm.MockGetKubernetesConfig = IntMockConfig
 	mm.MockGetClientset = IntMockClientset
 	mm.MockGetMetricsClientset = IntMockMetricsClientset
+	mm.MockGetNodeList = IntMockNodeList
 	mm.MockGetControlledDeployments = IntMockControlledDeployments
 	mm.MockGetReadyPodListForDeployment = IntMockReadyPodListForDeployment
 	mm.MockGetDeploymentUtilAndAlloc = IntMockDeploymentUtilAndAlloc

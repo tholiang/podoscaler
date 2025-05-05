@@ -12,9 +12,9 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download
 
 # Copy only necessary source directories
-COPY ./autoscaler ./autoscaler
 COPY ./util ./util
-# COPY ./autoscalertest ./autoscalertest
+# this is pretty bad - and doesn't work with autoscalertest
+COPY ./${BUILD_TAG} ./${BUILD_TAG}
 COPY ./main ./main
 
 # Build the binary

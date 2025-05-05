@@ -13,6 +13,8 @@ import (
 	"github.com/prometheus/common/model"
 )
 
+const DEFAULT_PROMETHEUS_URL = "http://prometheus-kube-prometheus-prometheus.prometheus.svc.cluster.local:9090"
+
 const PROMETHEUS_QUERY = `avg(aws_elb_latency_p99)`
 
 // return map of endpoint path to percentile latency

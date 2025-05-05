@@ -73,10 +73,24 @@ Change inbound settings
 Label deployments to be autoscaled
 `. ~/setup/vecter/label-hotelres.sh`
 
+expose frontend service
+`kubectl expose deployment frontend-hotelres --type=LoadBalancer --name=frontend-service-hotelres -n deathstarbench`
+
+setup cloudwatch
+`bash ~/setup/vecter/cloudwatch-setup.sh hotelres`
+
+## Autoscaler and Watcher
+
+build and run the autoscaler and watcher
+`./hack/hotel-autoscaler-up`
+
+copy watcher logs into a `.txt` file then run
+`python ./read-watcher-output.py`
+
 ## Load generation
 
 ```
-ssh -i yaas-opensource-team.pem ubuntu@ec2-54-151-28-84.us-west-1.compute.amazonaws.com
+ssh -i yaas-opensource-team.pem ubuntu@ec2-54-193-191-84.us-west-1.compute.amazonaws.com
 
 cd ~/DeathStarBench/hotelReservation
 

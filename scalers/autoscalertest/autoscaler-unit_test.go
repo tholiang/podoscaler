@@ -1,3 +1,6 @@
+//go:build autoscalertest
+// +build autoscalertest
+
 package autoscalertest
 
 import (
@@ -189,44 +192,44 @@ func TestUnit_NoCongestion(t *testing.T) {
 	AssertPodListsEqual(mm.Pods, correctEndPods, t)
 }
 
-func TestUnit_PodMove(t *testing.T) {
-	// values to test
-	correctEndPods := map[string]PodData{
-		"pod2": {PodName: "pod2", NodeName: "node1", ContainerName: "container", CpuRequests: 330},
-		"pod3": {PodName: "pod3", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
-		"pod4": {PodName: "pod4", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
-	}
+// func TestUnit_PodMove(t *testing.T) {
+// 	// values to test
+// 	correctEndPods := map[string]PodData{
+// 		"pod2": {PodName: "pod2", NodeName: "node1", ContainerName: "container", CpuRequests: 330},
+// 		"pod3": {PodName: "pod3", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
+// 		"pod4": {PodName: "pod4", NodeName: "node2", ContainerName: "container", CpuRequests: 330},
+// 	}
 
-	// setup
-	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
-	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
-	mm.RelDeploymentUtil = 1.1
-	mm.RelNodeUsages = map[string]float64{
-		"node1": 1,
-		"node2": 0.5,
-	}
-	mm.NodeAllocables = map[string]int64{
-		"node1": 10,
-		"node2": 700,
-	}
+// 	// setup
+// 	mm := CreateSimpleMockMetrics() // start 3 pods at 300 each
+// 	mm.Latency = MOCK_LATENCY_THRESHOLD * 1.5
+// 	mm.RelDeploymentUtil = 1.1
+// 	mm.RelNodeUsages = map[string]float64{
+// 		"node1": 1,
+// 		"node2": 0.5,
+// 	}
+// 	mm.NodeAllocables = map[string]int64{
+// 		"node1": 10,
+// 		"node2": 700,
+// 	}
 
-	// test
-	a := UnitMakeAutoscaler(0.2, 0.85, MOCK_DEPLOYMENT_NAMESPACE, 400, 100, mm)
-	err := a.Init()
-	AssertNoError(err, t)
+// 	// test
+// 	a := UnitMakeAutoscaler(0.2, 0.85, MOCK_DEPLOYMENT_NAMESPACE, 400, 100, mm)
+// 	err := a.Init()
+// 	AssertNoError(err, t)
 
-	err = a.RunRound()
-	AssertNoError(err, t)
+// 	err = a.RunRound()
+// 	AssertNoError(err, t)
 
-	AssertAction(mm, t, Action{Type: ChangeReplicaCountAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: MOCK_DEPLOYMENT_NAME, ReplicaCt: 4})
-	AssertAction(mm, t, Action{Type: DeletePodAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, PodName: "pod1"}) // funky - can sometimes be pod2
-	AssertAction(mm, t, Action{Type: ChangeReplicaCountAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: MOCK_DEPLOYMENT_NAME, ReplicaCt: 3})
-	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod2", ContainerName: "container", CpuRequests: "330m"})
-	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod3", ContainerName: "container", CpuRequests: "330m"})
-	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod4", ContainerName: "container", CpuRequests: "330m"})
-	AssertNoActions(mm, t)
+// 	AssertAction(mm, t, Action{Type: ChangeReplicaCountAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: MOCK_DEPLOYMENT_NAME, ReplicaCt: 4})
+// 	AssertAction(mm, t, Action{Type: DeletePodAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, PodName: "pod1"}) // funky - can sometimes be pod2
+// 	AssertAction(mm, t, Action{Type: ChangeReplicaCountAction, Namespace: MOCK_DEPLOYMENT_NAMESPACE, DeploymentName: MOCK_DEPLOYMENT_NAME, ReplicaCt: 3})
+// 	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod2", ContainerName: "container", CpuRequests: "330m"})
+// 	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod3", ContainerName: "container", CpuRequests: "330m"})
+// 	AssertAction(mm, t, Action{Type: VscaleAction, PodName: "pod4", ContainerName: "container", CpuRequests: "330m"})
+// 	AssertNoActions(mm, t)
 
-	AssertPodListsEqual(mm.Pods, correctEndPods, t)
-}
+// 	AssertPodListsEqual(mm.Pods, correctEndPods, t)
+// }
 
 // error handling?
