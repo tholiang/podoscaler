@@ -13,9 +13,8 @@ RUN go mod download
 
 # Copy only necessary source directories
 COPY ./util ./util
-RUN if [${BUILD_TAG} = "autoscaler" -o ${BUILD_TAG} = "autoscalertest"]; THEN COPY ./autoscaler ./autoscaler;
-RUN if [${BUILD_TAG} = "autoscalertest"]; THEN COPY ./autoscalertest ./autoscalertest;
-RUN if [${BUILD_TAG} = "watcher"]; THEN COPY ./watcher ./watcher;
+# this is pretty bad - and doesn't work with autoscalertest
+COPY ./${BUILD_TAG} ./${BUILD_TAG}
 COPY ./main ./main
 
 # Build the binary
