@@ -61,7 +61,7 @@ On the head node do:
 `. ~/setup/vecter/hotelres.sh`
 
 Now the application is deployed. Check the status of the pods using:
-`kubectl get pods`
+`kubectl get pods -n=deathstarbench`
 Wait until everyone of them is running.
 
 To check which pod is on which node use:
