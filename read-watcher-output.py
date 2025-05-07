@@ -46,13 +46,13 @@ for line in content.splitlines():
         if node not in node_usage_over_time:
             node_usage_over_time[node] = []
         if len(node_usage_over_time[node]) != round_number:
-            print("error: round number mismatch for node usage for node " + node)
+            node_usage_over_time[node] = [0] * round_number
         node_usage_over_time[node].append(float(usage) / capacity)
 
         if node not in node_allocation_over_time:
             node_allocation_over_time[node] = []
         if len(node_allocation_over_time[node]) != round_number:
-            print("error: round number mismatch for node allocation for node " + node)
+            node_allocation_over_time[node] = [0] * round_number
         node_allocation_over_time[node].append(float(allocation) / capacity)
     elif line.startswith("deployment"):
         deployment = line.split(" ")[1]
@@ -103,6 +103,8 @@ plt.title("Node Usage Over Time")
 plt.xlabel("Time (minutes)")
 plt.ylabel("Usage (%)")
 for node, usage in node_usage_over_time.items():
+    if len(usage) < len(times):
+        usage = usage + [0] * (len(times) - len(usage))
     plt.plot(times, usage, label=f"Node {node}")
 plt.legend()
 output_file = os.path.join(output_folder, "node_usage_over_time.png")
@@ -117,6 +119,8 @@ plt.title("Node Allocation Over Time")
 plt.xlabel("Time (minutes)")
 plt.ylabel("Allocation (%)")
 for node, allocation in node_allocation_over_time.items():
+    if len(allocation) < len(times):
+        allocation = allocation + [0] * (len(times) - len(allocation))
     plt.plot(times, allocation, label=f"Node {node}")
 plt.legend()
 output_file = os.path.join(output_folder, "node_allocation_over_time.png")
