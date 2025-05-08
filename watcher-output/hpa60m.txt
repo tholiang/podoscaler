@@ -1,0 +1,1108 @@
+Round 14
+percentile p99.99 latency %!d(float64=3.106732788027013)
+percentile p100 latency %!d(float64=5.882838726043701)
+percentile p90 latency %!d(float64=0.06398966246764215)
+percentile p99.999 latency %!d(float64=5.712226127852147)
+percentile p95 latency %!d(float64=0.3060598783953993)
+percentile p99.9 latency %!d(float64=2.238148602496403)
+percentile p99 latency %!d(float64=1.2891056444807136)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 318
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2535
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1279
+deployment geo-hotelres allocation 500 usage 296 pods 1
+deployment profile-hotelres allocation 500 usage 230 pods 1
+deployment rate-hotelres allocation 1000 usage 1198 pods 2
+deployment recommendation-hotelres allocation 500 usage 157 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 829 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 500 usage 726 pods 1
+
+Round 15
+ERROR: Failed to get usage for node i-077e158b861f28cf4: failed to get node metrics: nodemetrics.metrics.k8s.io "i-077e158b861f28cf4" not found
+percentile p100 latency %!d(float64=0.3235020637512207)
+percentile p90 latency %!d(float64=0.011723112879927356)
+percentile p99.999 latency %!d(float64=0.3205764341973151)
+percentile p95 latency %!d(float64=0.015496957714544693)
+percentile p99.9 latency %!d(float64=0.11368824759529254)
+percentile p99 latency %!d(float64=0.03081525059651848)
+percentile p99.99 latency %!d(float64=0.25720625086152293)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 303
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2604
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1203
+deployment user-hotelres allocation 500 usage 6 pods 1
+deployment frontend-hotelres allocation 500 usage 735 pods 1
+deployment geo-hotelres allocation 500 usage 291 pods 1
+deployment profile-hotelres allocation 500 usage 229 pods 1
+deployment rate-hotelres allocation 1000 usage 1167 pods 2
+deployment recommendation-hotelres allocation 500 usage 160 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 840 pods 2
+
+Round 16
+percentile p100 latency %!d(float64=5.349566698074341)
+percentile p90 latency %!d(float64=0.03282669104055949)
+percentile p99.999 latency %!d(float64=5.171518658278064)
+percentile p95 latency %!d(float64=0.25857769747554843)
+percentile p99.9 latency %!d(float64=2.5961874597938364)
+percentile p99 latency %!d(float64=1.4337830906331328)
+percentile p99.99 latency %!d(float64=3.94767238508357)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 359
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2507
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1115
+deployment search-hotelres allocation 1000 usage 815 pods 2
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 500 usage 726 pods 1
+deployment geo-hotelres allocation 500 usage 290 pods 1
+deployment profile-hotelres allocation 500 usage 231 pods 1
+deployment rate-hotelres allocation 1000 usage 1098 pods 2
+deployment recommendation-hotelres allocation 500 usage 160 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+
+Round 17
+ERROR: Failed to get usage for node i-0617db4282b25122e: failed to get node metrics: nodemetrics.metrics.k8s.io "i-0617db4282b25122e" not found
+percentile p99.9 latency %!d(float64=0.053720594142358045)
+percentile p99 latency %!d(float64=0.01894429754242844)
+percentile p99.99 latency %!d(float64=0.07930198542543944)
+percentile p100 latency %!d(float64=0.1058731079101562)
+percentile p90 latency %!d(float64=0.009718769192701399)
+percentile p99.999 latency %!d(float64=0.10325998907046673)
+percentile p95 latency %!d(float64=0.012097613325569351)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1012
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 542
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2607
+deployment rate-hotelres allocation 1000 usage 1123 pods 2
+deployment recommendation-hotelres allocation 500 usage 158 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 800 pods 2
+deployment user-hotelres allocation 500 usage 6 pods 1
+deployment frontend-hotelres allocation 500 usage 757 pods 1
+deployment geo-hotelres allocation 500 usage 298 pods 1
+deployment profile-hotelres allocation 500 usage 228 pods 1
+
+Round 18
+percentile p99.9 latency %!d(float64=0.03664831608446921)
+percentile p99 latency %!d(float64=0.02020847229938836)
+percentile p99.99 latency %!d(float64=0.056560336591991965)
+percentile p100 latency %!d(float64=0.0725865364074707)
+percentile p90 latency %!d(float64=0.009623193169804777)
+percentile p99.999 latency %!d(float64=0.07063409761876419)
+percentile p95 latency %!d(float64=0.01209345664370108)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1041
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 489
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2970
+deployment frontend-hotelres allocation 500 usage 730 pods 1
+deployment geo-hotelres allocation 500 usage 298 pods 1
+deployment profile-hotelres allocation 500 usage 276 pods 1
+deployment rate-hotelres allocation 1000 usage 1069 pods 2
+deployment recommendation-hotelres allocation 500 usage 150 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 773 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+
+Round 19
+percentile p90 latency %!d(float64=0.014317780967086316)
+percentile p99.999 latency %!d(float64=4.241706512910136)
+percentile p95 latency %!d(float64=0.07578667544586529)
+percentile p99.9 latency %!d(float64=2.106705714519881)
+percentile p99 latency %!d(float64=1.1207200478039554)
+percentile p99.99 latency %!d(float64=2.9442333250323363)
+percentile p100 latency %!d(float64=4.340701103210449)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 489
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2773
+node i-08c177e5fd922b23b capacity 2000 allocation 55 usage 1648
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1105
+deployment frontend-hotelres allocation 500 usage 761 pods 1
+deployment geo-hotelres allocation 500 usage 324 pods 1
+deployment profile-hotelres allocation 500 usage 244 pods 1
+deployment rate-hotelres allocation 1000 usage 1138 pods 2
+deployment recommendation-hotelres allocation 500 usage 169 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 859 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+
+Round 20
+percentile p99 latency %!d(float64=0.022367551836838633)
+percentile p99.99 latency %!d(float64=0.08110046521551163)
+percentile p100 latency %!d(float64=0.08776593208312988)
+percentile p90 latency %!d(float64=0.010374870907213707)
+percentile p99.999 latency %!d(float64=0.08725992589405933)
+percentile p95 latency %!d(float64=0.013160248533436048)
+percentile p99.9 latency %!d(float64=0.04728632614969146)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 342
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2523
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 564
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 899
+deployment search-hotelres allocation 1000 usage 877 pods 2
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1000 usage 775 pods 2
+deployment geo-hotelres allocation 500 usage 322 pods 1
+deployment profile-hotelres allocation 500 usage 256 pods 1
+deployment rate-hotelres allocation 1500 usage 1122 pods 3
+deployment recommendation-hotelres allocation 500 usage 174 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+
+Round 21
+percentile p95 latency %!d(float64=0.01192564619391386)
+percentile p99.9 latency %!d(float64=0.030878718547364035)
+percentile p99 latency %!d(float64=0.017876923870725744)
+percentile p99.99 latency %!d(float64=14.664524572756314)
+percentile p100 latency %!d(float64=15.83392262458801)
+percentile p90 latency %!d(float64=0.009594980419440848)
+percentile p99.999 latency %!d(float64=15.712904294481412)
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 852
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 919
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 408
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2296
+deployment profile-hotelres allocation 500 usage 271 pods 1
+deployment rate-hotelres allocation 1500 usage 1120 pods 3
+deployment recommendation-hotelres allocation 500 usage 192 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 890 pods 2
+deployment user-hotelres allocation 500 usage 6 pods 1
+deployment frontend-hotelres allocation 1000 usage 830 pods 2
+deployment geo-hotelres allocation 500 usage 324 pods 1
+
+Round 22
+percentile p99.99 latency %!d(float64=0.036107611297544855)
+percentile p100 latency %!d(float64=0.05276870727539062)
+percentile p90 latency %!d(float64=0.008282342568519079)
+percentile p99.999 latency %!d(float64=0.05232952444706252)
+percentile p95 latency %!d(float64=0.010014423274384187)
+percentile p99.9 latency %!d(float64=0.02670635366037182)
+percentile p99 latency %!d(float64=0.014760749224215837)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 306
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2260
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 833
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 802
+deployment rate-hotelres allocation 1500 usage 1096 pods 3
+deployment recommendation-hotelres allocation 500 usage 191 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 870 pods 2
+deployment user-hotelres allocation 500 usage 6 pods 1
+deployment frontend-hotelres allocation 1000 usage 810 pods 2
+deployment geo-hotelres allocation 500 usage 324 pods 1
+deployment profile-hotelres allocation 500 usage 268 pods 1
+
+Round 23
+percentile p99 latency %!d(float64=0.014467520015982714)
+percentile p99.99 latency %!d(float64=9.274492133791332)
+percentile p100 latency %!d(float64=10.0359365940094)
+percentile p90 latency %!d(float64=0.008119560681721842)
+percentile p99.999 latency %!d(float64=10.005321208240067)
+percentile p95 latency %!d(float64=0.009787246588395413)
+percentile p99.9 latency %!d(float64=0.02496423993825075)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 286
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2384
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 821
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 899
+deployment reservation-hotelres allocation 500 usage 4 pods 1
+deployment search-hotelres allocation 1000 usage 868 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 863 pods 2
+deployment geo-hotelres allocation 500 usage 326 pods 1
+deployment profile-hotelres allocation 500 usage 275 pods 1
+deployment rate-hotelres allocation 1500 usage 1112 pods 3
+deployment recommendation-hotelres allocation 500 usage 195 pods 1
+
+Round 24
+percentile p99.999 latency %!d(float64=0.043740587157329015)
+percentile p95 latency %!d(float64=0.010187730745062152)
+percentile p99.9 latency %!d(float64=0.0259324465807815)
+percentile p99 latency %!d(float64=0.01500370495257139)
+percentile p99.99 latency %!d(float64=0.036394150940908365)
+percentile p100 latency %!d(float64=0.04508876800537109)
+percentile p90 latency %!d(float64=0.008398652870177766)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2147
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 936
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 866
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 271
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 794 pods 2
+deployment geo-hotelres allocation 500 usage 320 pods 1
+deployment profile-hotelres allocation 500 usage 279 pods 1
+deployment rate-hotelres allocation 1500 usage 1110 pods 3
+deployment recommendation-hotelres allocation 500 usage 194 pods 1
+deployment reservation-hotelres allocation 500 usage 1 pods 1
+deployment search-hotelres allocation 1000 usage 883 pods 2
+
+Round 25
+percentile p99.999 latency %!d(float64=0.20221206823494928)
+percentile p95 latency %!d(float64=0.00996216655415344)
+percentile p99.9 latency %!d(float64=0.028546052677648277)
+percentile p99 latency %!d(float64=0.014978288076218104)
+percentile p99.99 latency %!d(float64=0.04069247957695738)
+percentile p100 latency %!d(float64=0.2107913494110107)
+percentile p90 latency %!d(float64=0.008283298023141929)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2156
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 1082
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 941
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 304
+deployment rate-hotelres allocation 1500 usage 1256 pods 3
+deployment recommendation-hotelres allocation 500 usage 207 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 978 pods 2
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1000 usage 764 pods 2
+deployment geo-hotelres allocation 500 usage 352 pods 1
+deployment profile-hotelres allocation 500 usage 294 pods 1
+
+Round 26
+percentile p99.99 latency %!d(float64=3.6844541325624705)
+percentile p100 latency %!d(float64=4.35363507270813)
+percentile p90 latency %!d(float64=0.019029068076877768)
+percentile p99.999 latency %!d(float64=4.3068967107939855)
+percentile p95 latency %!d(float64=0.23981183794434402)
+percentile p99.9 latency %!d(float64=2.9158020138568705)
+percentile p99 latency %!d(float64=1.774768882200866)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 295
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2402
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 994
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 931
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 878 pods 2
+deployment geo-hotelres allocation 500 usage 346 pods 1
+deployment profile-hotelres allocation 500 usage 293 pods 1
+deployment rate-hotelres allocation 1500 usage 1261 pods 3
+deployment recommendation-hotelres allocation 500 usage 206 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 948 pods 2
+
+Round 27
+percentile p99 latency %!d(float64=0.019082255586746068)
+percentile p99.99 latency %!d(float64=0.13073710336338495)
+percentile p100 latency %!d(float64=0.1389033794403076)
+percentile p90 latency %!d(float64=0.00922740790294476)
+percentile p99.999 latency %!d(float64=0.13616064510364506)
+percentile p95 latency %!d(float64=0.011438489158769284)
+percentile p99.9 latency %!d(float64=0.06423499038833301)
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 1021
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1185
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 359
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2398
+deployment recommendation-hotelres allocation 500 usage 211 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 951 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 925 pods 2
+deployment geo-hotelres allocation 500 usage 354 pods 1
+deployment profile-hotelres allocation 500 usage 295 pods 1
+deployment rate-hotelres allocation 1500 usage 1289 pods 3
+
+Round 28
+percentile p99.999 latency %!d(float64=0.11435733653714165)
+percentile p95 latency %!d(float64=0.010558857603658748)
+percentile p99.9 latency %!d(float64=0.041006087585582246)
+percentile p99 latency %!d(float64=0.015519637847682219)
+percentile p99.99 latency %!d(float64=0.09981222627397535)
+percentile p100 latency %!d(float64=0.1215987205505371)
+percentile p90 latency %!d(float64=0.008740143360642438)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 285
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2364
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 1067
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1020
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 884 pods 2
+deployment geo-hotelres allocation 500 usage 358 pods 1
+deployment profile-hotelres allocation 500 usage 295 pods 1
+deployment rate-hotelres allocation 1500 usage 1309 pods 3
+deployment recommendation-hotelres allocation 500 usage 207 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 973 pods 2
+
+Round 29
+percentile p100 latency %!d(float64=0.07453417778015137)
+percentile p90 latency %!d(float64=0.009141953527446695)
+percentile p99.999 latency %!d(float64=0.07075165422410475)
+percentile p95 latency %!d(float64=0.011170646360391731)
+percentile p99.9 latency %!d(float64=0.030782348526749395)
+percentile p99 latency %!d(float64=0.017224665743885433)
+percentile p99.99 latency %!d(float64=0.04492777851820713)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 310
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2514
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 976
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1014
+deployment rate-hotelres allocation 1500 usage 1271 pods 3
+deployment recommendation-hotelres allocation 500 usage 208 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1000 usage 970 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 956 pods 2
+deployment geo-hotelres allocation 500 usage 352 pods 1
+deployment profile-hotelres allocation 500 usage 295 pods 1
+
+Round 30
+percentile p99 latency %!d(float64=0.017363092942322488)
+percentile p99.99 latency %!d(float64=0.06166657510022369)
+percentile p100 latency %!d(float64=0.2108607292175293)
+percentile p90 latency %!d(float64=0.008993455942289478)
+percentile p99.999 latency %!d(float64=0.20136208283490695)
+percentile p95 latency %!d(float64=0.011013824550636373)
+percentile p99.9 latency %!d(float64=0.04134027259843521)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 341
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2461
+node i-08c177e5fd922b23b capacity 2000 allocation 1055 usage 1065
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 978
+deployment profile-hotelres allocation 500 usage 291 pods 1
+deployment rate-hotelres allocation 1500 usage 1262 pods 3
+deployment recommendation-hotelres allocation 500 usage 205 pods 1
+deployment reservation-hotelres allocation 500 usage 1 pods 1
+deployment search-hotelres allocation 1000 usage 977 pods 2
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 933 pods 2
+deployment geo-hotelres allocation 500 usage 348 pods 1
+
+Round 31
+percentile p95 latency %!d(float64=0.01106341302978325)
+percentile p99.9 latency %!d(float64=0.025740396164233)
+percentile p99 latency %!d(float64=0.016259556892162564)
+percentile p99.99 latency %!d(float64=0.03894695591820438)
+percentile p100 latency %!d(float64=0.2143630981445312)
+percentile p90 latency %!d(float64=0.00903481339584425)
+percentile p99.999 latency %!d(float64=0.2082548008359001)
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1253
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1008
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 358
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3826
+deployment frontend-hotelres allocation 1000 usage 1104 pods 2
+deployment geo-hotelres allocation 500 usage 374 pods 1
+deployment profile-hotelres allocation 500 usage 318 pods 1
+deployment rate-hotelres allocation 1500 usage 1446 pods 3
+deployment recommendation-hotelres allocation 500 usage 213 pods 1
+deployment reservation-hotelres allocation 500 usage 998 pods 1
+deployment search-hotelres allocation 1500 usage 1066 pods 3
+deployment user-hotelres allocation 500 usage 7 pods 1
+
+Round 32
+percentile p99.99 latency %!d(float64=0.05685436926918502)
+percentile p100 latency %!d(float64=0.1016864776611328)
+percentile p90 latency %!d(float64=0.00971842112492659)
+percentile p99.999 latency %!d(float64=0.10156577955998465)
+percentile p95 latency %!d(float64=0.01200142193108035)
+percentile p99.9 latency %!d(float64=0.037746022356348934)
+percentile p99 latency %!d(float64=0.0193236902640639)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 333
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2729
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1077
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 897
+deployment frontend-hotelres allocation 1000 usage 914 pods 2
+deployment geo-hotelres allocation 500 usage 383 pods 1
+deployment profile-hotelres allocation 500 usage 329 pods 1
+deployment rate-hotelres allocation 1500 usage 1411 pods 3
+deployment recommendation-hotelres allocation 500 usage 215 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1040 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+
+Round 33
+percentile p99.99 latency %!d(float64=0.7540408365345379)
+percentile p100 latency %!d(float64=0.8706333637237549)
+percentile p90 latency %!d(float64=0.05222108587038505)
+percentile p99.999 latency %!d(float64=0.8589074896753294)
+percentile p95 latency %!d(float64=0.11593178651832933)
+percentile p99.9 latency %!d(float64=0.4127364489073872)
+percentile p99 latency %!d(float64=0.24869485271673675)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 382
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2415
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1395
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 951
+deployment search-hotelres allocation 1500 usage 1065 pods 3
+deployment user-hotelres allocation 500 usage 7 pods 1
+deployment frontend-hotelres allocation 1000 usage 915 pods 2
+deployment geo-hotelres allocation 500 usage 383 pods 1
+deployment profile-hotelres allocation 500 usage 311 pods 1
+deployment rate-hotelres allocation 1500 usage 1413 pods 3
+deployment recommendation-hotelres allocation 500 usage 218 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+
+Round 34
+percentile p100 latency %!d(float64=0.1127035617828369)
+percentile p90 latency %!d(float64=0.010820500872646263)
+percentile p99.999 latency %!d(float64=0.11190124543372978)
+percentile p95 latency %!d(float64=0.013728655776239568)
+percentile p99.9 latency %!d(float64=0.06606875854894127)
+percentile p99 latency %!d(float64=0.02413549791351072)
+percentile p99.99 latency %!d(float64=0.09697021431918826)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 319
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2461
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1357
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 863
+deployment geo-hotelres allocation 500 usage 385 pods 1
+deployment profile-hotelres allocation 500 usage 318 pods 1
+deployment rate-hotelres allocation 1500 usage 1372 pods 3
+deployment recommendation-hotelres allocation 500 usage 224 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1046 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1000 usage 947 pods 2
+
+Round 35
+percentile p95 latency %!d(float64=0.012649159648375678)
+percentile p99.9 latency %!d(float64=0.039389947132661994)
+percentile p99 latency %!d(float64=0.019827861272699768)
+percentile p99.99 latency %!d(float64=0.10434089812877219)
+percentile p100 latency %!d(float64=0.1087512969970703)
+percentile p90 latency %!d(float64=0.010196764731452007)
+percentile p99.999 latency %!d(float64=0.1083019952505952)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 888
+node i-009b906f038f69f00 capacity 2000 allocation 1555 usage 1327
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 360
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2641
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1102
+deployment profile-hotelres allocation 500 usage 305 pods 1
+deployment rate-hotelres allocation 1500 usage 1343 pods 3
+deployment recommendation-hotelres allocation 500 usage 216 pods 1
+deployment reservation-hotelres allocation 1500 usage 0 pods 3
+deployment search-hotelres allocation 1500 usage 1036 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 967 pods 3
+deployment geo-hotelres allocation 500 usage 382 pods 1
+
+Round 36
+percentile p99 latency %!d(float64=0.03450958127498032)
+percentile p99.99 latency %!d(float64=0.8447400400673722)
+percentile p100 latency %!d(float64=0.8722360134124756)
+percentile p90 latency %!d(float64=0.010330114524174107)
+percentile p99.999 latency %!d(float64=0.8694466144284257)
+percentile p95 latency %!d(float64=0.01310153154851005)
+percentile p99.9 latency %!d(float64=0.6230257756356637)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2500
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1233
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 920
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 402
+deployment geo-hotelres allocation 500 usage 379 pods 1
+deployment profile-hotelres allocation 500 usage 309 pods 1
+deployment rate-hotelres allocation 1500 usage 1352 pods 3
+deployment recommendation-hotelres allocation 500 usage 222 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1038 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1000 usage 941 pods 2
+
+Round 37
+percentile p90 latency %!d(float64=0.010558867377234722)
+percentile p99.999 latency %!d(float64=0.05725803305648749)
+percentile p95 latency %!d(float64=0.013096548965050898)
+percentile p99.9 latency %!d(float64=0.03051352475203818)
+percentile p99 latency %!d(float64=0.019742220258665344)
+percentile p99.99 latency %!d(float64=0.042314248616205204)
+percentile p100 latency %!d(float64=0.2153100967407227)
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1301
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 964
+node i-0e4f41d9fd9ea4f4b capacity 2000 allocation 1055 usage 714
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 421
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2781
+deployment geo-hotelres allocation 500 usage 408 pods 1
+deployment profile-hotelres allocation 500 usage 326 pods 1
+deployment rate-hotelres allocation 2000 usage 1491 pods 4
+deployment recommendation-hotelres allocation 500 usage 232 pods 1
+deployment reservation-hotelres allocation 500 usage 1 pods 1
+deployment search-hotelres allocation 1500 usage 1112 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 1104 pods 3
+
+Round 38
+percentile p99 latency %!d(float64=0.019743289449799018)
+percentile p99.99 latency %!d(float64=0.04526164447266586)
+percentile p100 latency %!d(float64=0.2285566329956055)
+percentile p90 latency %!d(float64=0.010824489029881522)
+percentile p99.999 latency %!d(float64=0.2193631455401522)
+percentile p95 latency %!d(float64=0.013316421222753089)
+percentile p99.9 latency %!d(float64=0.031152241998087516)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 475
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2711
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1324
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 879
+deployment rate-hotelres allocation 1500 usage 1464 pods 3
+deployment recommendation-hotelres allocation 500 usage 231 pods 1
+deployment reservation-hotelres allocation 500 usage 1 pods 1
+deployment search-hotelres allocation 1500 usage 1095 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1000 usage 1021 pods 2
+deployment geo-hotelres allocation 500 usage 404 pods 1
+deployment profile-hotelres allocation 500 usage 326 pods 1
+
+Round 39
+percentile p100 latency %!d(float64=0.5237467288970947)
+percentile p90 latency %!d(float64=0.014358064712805095)
+percentile p99.999 latency %!d(float64=0.5148967900941295)
+percentile p95 latency %!d(float64=0.02120630886804309)
+percentile p99.9 latency %!d(float64=0.21929551306189485)
+percentile p99 latency %!d(float64=0.10435367089407449)
+percentile p99.99 latency %!d(float64=0.314575586616306)
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1438
+node i-0cea45ce5aedfdceb capacity 2000 allocation 1055 usage 1342
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 888
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 441
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2971
+deployment geo-hotelres allocation 500 usage 382 pods 1
+deployment profile-hotelres allocation 500 usage 343 pods 1
+deployment rate-hotelres allocation 2000 usage 1481 pods 4
+deployment recommendation-hotelres allocation 500 usage 229 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1063 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 1019 pods 3
+
+Round 40
+ERROR: Failed to get usage for node i-08a49160a55440b4b: failed to get node metrics: nodemetrics.metrics.k8s.io "i-08a49160a55440b4b" not found
+percentile p100 latency %!d(float64=3.40147066116333)
+percentile p90 latency %!d(float64=0.02761928867465628)
+percentile p99.999 latency %!d(float64=3.288161604091314)
+percentile p95 latency %!d(float64=0.11344193679383635)
+percentile p99.9 latency %!d(float64=2.6670622393994443)
+percentile p99 latency %!d(float64=1.4359859791097005)
+percentile p99.99 latency %!d(float64=3.068117262434357)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 290
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2498
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1476
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 967
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1120 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1000 usage 998 pods 2
+deployment geo-hotelres allocation 500 usage 404 pods 1
+deployment profile-hotelres allocation 500 usage 327 pods 1
+deployment rate-hotelres allocation 1500 usage 1499 pods 3
+deployment recommendation-hotelres allocation 500 usage 227 pods 1
+
+Round 41
+percentile p99 latency %!d(float64=0.02451576427031363)
+percentile p99.99 latency %!d(float64=0.1620461799967005)
+percentile p100 latency %!d(float64=0.1975326538085938)
+percentile p90 latency %!d(float64=0.011612340874327767)
+percentile p99.999 latency %!d(float64=0.18994690928717142)
+percentile p95 latency %!d(float64=0.014683279914126652)
+percentile p99.9 latency %!d(float64=0.08867621376833966)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2605
+node i-08a49160a55440b4b capacity 2000 allocation 1055 usage 1553
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1394
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 933
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 386
+deployment profile-hotelres allocation 500 usage 325 pods 1
+deployment rate-hotelres allocation 2000 usage 1488 pods 4
+deployment recommendation-hotelres allocation 500 usage 224 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1104 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 1023 pods 3
+deployment geo-hotelres allocation 500 usage 402 pods 1
+
+Round 42
+ERROR: Failed to get usage for node i-045e62e4fb4e5fde2: failed to get node metrics: nodemetrics.metrics.k8s.io "i-045e62e4fb4e5fde2" not found
+percentile p99.999 latency %!d(float64=0.20056504674641934)
+percentile p95 latency %!d(float64=0.01344216657642034)
+percentile p99.9 latency %!d(float64=0.04109868836098895)
+percentile p99 latency %!d(float64=0.021272332904172152)
+percentile p99.99 latency %!d(float64=0.08019101376627301)
+percentile p100 latency %!d(float64=0.2146561145782471)
+percentile p90 latency %!d(float64=0.010660851517801087)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 837
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 340
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2534
+node i-08a49160a55440b4b capacity 2000 allocation 1055 usage 695
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1289
+deployment geo-hotelres allocation 500 usage 421 pods 1
+deployment profile-hotelres allocation 500 usage 330 pods 1
+deployment rate-hotelres allocation 2000 usage 1576 pods 4
+deployment recommendation-hotelres allocation 500 usage 249 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1170 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 1272 pods 3
+
+Round 43
+percentile p99.99 latency %!d(float64=0.03925511736493699)
+percentile p100 latency %!d(float64=0.04464459419250488)
+percentile p90 latency %!d(float64=0.010134287268767883)
+percentile p99.999 latency %!d(float64=0.04428834461623957)
+percentile p95 latency %!d(float64=0.012335204792536613)
+percentile p99.9 latency %!d(float64=0.030348416119664504)
+percentile p99 latency %!d(float64=0.018683162154612878)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 275
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2435
+node i-08a49160a55440b4b capacity 2000 allocation 1055 usage 833
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1238
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 979
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1202 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1093 pods 3
+deployment geo-hotelres allocation 500 usage 423 pods 1
+deployment profile-hotelres allocation 500 usage 354 pods 1
+deployment rate-hotelres allocation 2000 usage 1608 pods 4
+deployment recommendation-hotelres allocation 500 usage 256 pods 1
+
+Round 44
+percentile p99.99 latency %!d(float64=8.555961488941922)
+percentile p100 latency %!d(float64=9.777527570724487)
+percentile p90 latency %!d(float64=0.010032259563176384)
+percentile p99.999 latency %!d(float64=9.681739379294171)
+percentile p95 latency %!d(float64=0.01235627681396798)
+percentile p99.9 latency %!d(float64=0.032279026862845596)
+percentile p99 latency %!d(float64=0.01910148118956947)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 354
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2441
+node i-08a49160a55440b4b capacity 2000 allocation 1055 usage 703
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1285
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 953
+deployment rate-hotelres allocation 2000 usage 1618 pods 4
+deployment recommendation-hotelres allocation 500 usage 248 pods 1
+deployment reservation-hotelres allocation 500 usage 0 pods 1
+deployment search-hotelres allocation 1500 usage 1183 pods 3
+deployment user-hotelres allocation 500 usage 11 pods 1
+deployment frontend-hotelres allocation 1500 usage 1095 pods 3
+deployment geo-hotelres allocation 500 usage 417 pods 1
+deployment profile-hotelres allocation 500 usage 352 pods 1
+
+Round 45
+percentile p100 latency %!d(float64=0.4336612224578857)
+percentile p90 latency %!d(float64=0.014467156953846115)
+percentile p99.999 latency %!d(float64=0.4251035601148113)
+percentile p95 latency %!d(float64=0.021307926410789817)
+percentile p99.9 latency %!d(float64=0.18131567774061022)
+percentile p99 latency %!d(float64=0.08556843342428248)
+percentile p99.99 latency %!d(float64=0.29009538431462284)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 368
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2153
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1252
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1106
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 908
+deployment geo-hotelres allocation 500 usage 421 pods 1
+deployment profile-hotelres allocation 500 usage 363 pods 1
+deployment rate-hotelres allocation 2000 usage 1589 pods 4
+deployment recommendation-hotelres allocation 500 usage 249 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1173 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1500 usage 1026 pods 3
+
+Round 46
+percentile p100 latency %!d(float64=4.98568058013916)
+percentile p90 latency %!d(float64=0.6497221396719759)
+percentile p99.999 latency %!d(float64=4.894999880516459)
+percentile p95 latency %!d(float64=1.832128299042643)
+percentile p99.9 latency %!d(float64=4.294111219552507)
+percentile p99 latency %!d(float64=3.3084261536168964)
+percentile p99.99 latency %!d(float64=4.576922019153775)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2094
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1099
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 934
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 826
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 259
+deployment search-hotelres allocation 1500 usage 1152 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1500 usage 831 pods 3
+deployment geo-hotelres allocation 500 usage 416 pods 1
+deployment profile-hotelres allocation 500 usage 350 pods 1
+deployment rate-hotelres allocation 2000 usage 1567 pods 4
+deployment recommendation-hotelres allocation 500 usage 246 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+
+Round 47
+percentile p90 latency %!d(float64=0.012264838411739932)
+percentile p99.999 latency %!d(float64=4.643795461317639)
+percentile p95 latency %!d(float64=0.029478166474862528)
+percentile p99.9 latency %!d(float64=2.314669017078857)
+percentile p99 latency %!d(float64=1.385822890814673)
+percentile p99.99 latency %!d(float64=2.7960029717309816)
+percentile p100 latency %!d(float64=5.049579381942749)
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1198
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 864
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 869
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 273
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2256
+deployment frontend-hotelres allocation 1500 usage 866 pods 3
+deployment geo-hotelres allocation 500 usage 428 pods 1
+deployment profile-hotelres allocation 500 usage 334 pods 1
+deployment rate-hotelres allocation 2000 usage 1600 pods 4
+deployment recommendation-hotelres allocation 500 usage 234 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1173 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+
+Round 48
+percentile p99.9 latency %!d(float64=2.9919928847824053)
+percentile p99 latency %!d(float64=1.8908207440252178)
+percentile p99.99 latency %!d(float64=3.380691409771978)
+percentile p100 latency %!d(float64=3.698773622512817)
+percentile p90 latency %!d(float64=0.011259366327069465)
+percentile p99.999 latency %!d(float64=3.4782283095920197)
+percentile p95 latency %!d(float64=0.021273835023473363)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 951
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 290
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2599
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1005
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1160
+deployment geo-hotelres allocation 500 usage 438 pods 1
+deployment profile-hotelres allocation 500 usage 377 pods 1
+deployment rate-hotelres allocation 2000 usage 1717 pods 4
+deployment recommendation-hotelres allocation 500 usage 268 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1264 pods 3
+deployment user-hotelres allocation 500 usage 8 pods 1
+deployment frontend-hotelres allocation 1500 usage 1171 pods 3
+
+Round 49
+percentile p99 latency %!d(float64=0.02220879237510698)
+percentile p99.99 latency %!d(float64=0.11712652826114381)
+percentile p100 latency %!d(float64=0.1447999477386475)
+percentile p90 latency %!d(float64=0.010349444016661973)
+percentile p99.999 latency %!d(float64=0.14248303337921106)
+percentile p95 latency %!d(float64=0.012890769260059607)
+percentile p99.9 latency %!d(float64=0.07936403802819955)
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 787
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1020
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 916
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 296
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2985
+deployment recommendation-hotelres allocation 500 usage 263 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1212 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1180 pods 3
+deployment geo-hotelres allocation 500 usage 439 pods 1
+deployment profile-hotelres allocation 500 usage 371 pods 1
+deployment rate-hotelres allocation 2000 usage 1646 pods 4
+
+Round 50
+percentile p99.99 latency %!d(float64=2.582450432123586)
+percentile p100 latency %!d(float64=3.365205049514771)
+percentile p90 latency %!d(float64=0.013574151658226279)
+percentile p99.999 latency %!d(float64=3.1459893283528797)
+percentile p95 latency %!d(float64=0.041485223049698115)
+percentile p99.9 latency %!d(float64=2.288777973714452)
+percentile p99 latency %!d(float64=1.3412254620013844)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2516
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1017
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1119
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 942
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 291
+deployment rate-hotelres allocation 2000 usage 1698 pods 4
+deployment recommendation-hotelres allocation 500 usage 270 pods 1
+deployment reservation-hotelres allocation 1000 usage 3 pods 2
+deployment search-hotelres allocation 1500 usage 1236 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1500 usage 1141 pods 3
+deployment geo-hotelres allocation 500 usage 438 pods 1
+deployment profile-hotelres allocation 500 usage 376 pods 1
+
+Round 51
+percentile p99 latency %!d(float64=0.02003126521432351)
+percentile p99.99 latency %!d(float64=0.18731595972970816)
+percentile p100 latency %!d(float64=0.2209529876708984)
+percentile p90 latency %!d(float64=0.010088424710215765)
+percentile p99.999 latency %!d(float64=0.21935289635313207)
+percentile p95 latency %!d(float64=0.01235679349457213)
+percentile p99.9 latency %!d(float64=0.12018839142360582)
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3789
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 907
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1097
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 926
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 307
+deployment reservation-hotelres allocation 1000 usage 798 pods 2
+deployment search-hotelres allocation 1500 usage 1208 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1177 pods 3
+deployment geo-hotelres allocation 500 usage 411 pods 1
+deployment profile-hotelres allocation 500 usage 397 pods 1
+deployment rate-hotelres allocation 2000 usage 1702 pods 4
+deployment recommendation-hotelres allocation 500 usage 258 pods 1
+
+Round 52
+percentile p95 latency %!d(float64=0.022464312821730364)
+percentile p99.9 latency %!d(float64=0.1382713507515224)
+percentile p99 latency %!d(float64=0.06330441379795747)
+percentile p99.99 latency %!d(float64=0.1932629705325126)
+percentile p100 latency %!d(float64=0.2217895984649658)
+percentile p90 latency %!d(float64=0.015361274877923351)
+percentile p99.999 latency %!d(float64=0.21976453485876404)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 283
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2456
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1575
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1029
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 905
+deployment rate-hotelres allocation 2000 usage 1707 pods 4
+deployment recommendation-hotelres allocation 500 usage 267 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1239 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1258 pods 3
+deployment geo-hotelres allocation 500 usage 440 pods 1
+deployment profile-hotelres allocation 500 usage 376 pods 1
+
+Round 53
+percentile p100 latency %!d(float64=4.373165845870972)
+percentile p90 latency %!d(float64=0.21047066482254367)
+percentile p99.999 latency %!d(float64=4.185686756841659)
+percentile p95 latency %!d(float64=0.5710171797701682)
+percentile p99.9 latency %!d(float64=3.299730487835569)
+percentile p99 latency %!d(float64=2.2736758877350756)
+percentile p99.99 latency %!d(float64=3.686106655392687)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 269
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2753
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 832
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1128
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 895
+deployment frontend-hotelres allocation 1500 usage 1172 pods 3
+deployment geo-hotelres allocation 500 usage 446 pods 1
+deployment profile-hotelres allocation 500 usage 369 pods 1
+deployment rate-hotelres allocation 2000 usage 1664 pods 4
+deployment recommendation-hotelres allocation 500 usage 269 pods 1
+deployment reservation-hotelres allocation 1000 usage 0 pods 2
+deployment search-hotelres allocation 1500 usage 1228 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+
+Round 54
+percentile p99.999 latency %!d(float64=0.35169097114621484)
+percentile p95 latency %!d(float64=0.0123456116381419)
+percentile p99.9 latency %!d(float64=0.19965559866153976)
+percentile p99 latency %!d(float64=0.023334126528851695)
+percentile p99.99 latency %!d(float64=0.25234018951773884)
+percentile p100 latency %!d(float64=0.3800313472747803)
+percentile p90 latency %!d(float64=0.010020695686586891)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 354
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2811
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 931
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1287
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 1567
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1001
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1264 pods 3
+deployment geo-hotelres allocation 500 usage 459 pods 1
+deployment profile-hotelres allocation 500 usage 396 pods 1
+deployment rate-hotelres allocation 2000 usage 1826 pods 4
+deployment recommendation-hotelres allocation 500 usage 290 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1311 pods 3
+
+Round 55
+percentile p95 latency %!d(float64=0.013429453124637078)
+percentile p99.9 latency %!d(float64=0.03615064588482449)
+percentile p99 latency %!d(float64=0.02115814393724249)
+percentile p99.99 latency %!d(float64=0.05592522506391568)
+percentile p100 latency %!d(float64=0.2119603157043457)
+percentile p90 latency %!d(float64=0.010830310835404772)
+percentile p99.999 latency %!d(float64=0.07445454421648004)
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 71
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 925
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 274
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2703
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1072
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1172
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1281 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1206 pods 3
+deployment geo-hotelres allocation 500 usage 463 pods 1
+deployment profile-hotelres allocation 500 usage 392 pods 1
+deployment rate-hotelres allocation 2000 usage 1784 pods 4
+deployment recommendation-hotelres allocation 500 usage 280 pods 1
+
+Round 56
+percentile p100 latency %!d(float64=3.920072793960571)
+percentile p90 latency %!d(float64=0.21171690141182192)
+percentile p99.999 latency %!d(float64=3.797417114195605)
+percentile p95 latency %!d(float64=1.2319681483919553)
+percentile p99.9 latency %!d(float64=3.4321714780680876)
+percentile p99 latency %!d(float64=2.566181805479138)
+percentile p99.99 latency %!d(float64=3.7618282172782584)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 943
+node i-00eb26071dda3336a capacity 2000 allocation 55 usage 934
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 384
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2724
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 982
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1313
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 1015
+deployment frontend-hotelres allocation 1500 usage 1215 pods 3
+deployment geo-hotelres allocation 500 usage 463 pods 1
+deployment profile-hotelres allocation 500 usage 408 pods 1
+deployment rate-hotelres allocation 2000 usage 1792 pods 4
+deployment recommendation-hotelres allocation 500 usage 277 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1278 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+
+Round 57
+percentile p99.99 latency %!d(float64=6.097992410566817)
+percentile p100 latency %!d(float64=6.676420927047729)
+percentile p90 latency %!d(float64=0.3434539498856677)
+percentile p99.999 latency %!d(float64=6.5916450052439215)
+percentile p95 latency %!d(float64=1.8630141307425043)
+percentile p99.9 latency %!d(float64=5.605898343354688)
+percentile p99 latency %!d(float64=4.116476222430055)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 901
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 285
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2333
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 789
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1595
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 839
+deployment rate-hotelres allocation 2000 usage 1783 pods 4
+deployment recommendation-hotelres allocation 500 usage 240 pods 1
+deployment reservation-hotelres allocation 2000 usage 139 pods 4
+deployment search-hotelres allocation 1500 usage 1261 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1500 usage 1044 pods 3
+deployment geo-hotelres allocation 500 usage 449 pods 1
+deployment profile-hotelres allocation 500 usage 379 pods 1
+
+Round 58
+percentile p99 latency %!d(float64=1.6509400366494298)
+percentile p99.99 latency %!d(float64=3.1302951041813243)
+percentile p100 latency %!d(float64=9.819217681884766)
+percentile p90 latency %!d(float64=0.019495892153791692)
+percentile p99.999 latency %!d(float64=9.704782364654218)
+percentile p95 latency %!d(float64=0.07182238156749342)
+percentile p99.9 latency %!d(float64=2.739895591920143)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 296
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3689
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 897
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1417
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 75
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 904
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1177 pods 3
+deployment geo-hotelres allocation 500 usage 420 pods 1
+deployment profile-hotelres allocation 500 usage 393 pods 1
+deployment rate-hotelres allocation 2000 usage 1843 pods 4
+deployment recommendation-hotelres allocation 500 usage 255 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1217 pods 3
+
+Round 59
+percentile p100 latency %!d(float64=4.308158159255981)
+percentile p90 latency %!d(float64=0.03642082987222062)
+percentile p99.999 latency %!d(float64=4.1708629993469755)
+percentile p95 latency %!d(float64=0.14178437430758475)
+percentile p99.9 latency %!d(float64=2.8749372138376668)
+percentile p99 latency %!d(float64=1.9287769605804936)
+percentile p99.99 latency %!d(float64=3.368836409554055)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 310
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2831
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 712
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1300
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 1314
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 952
+deployment frontend-hotelres allocation 1500 usage 1112 pods 3
+deployment geo-hotelres allocation 500 usage 458 pods 1
+deployment profile-hotelres allocation 500 usage 401 pods 1
+deployment rate-hotelres allocation 2000 usage 1795 pods 4
+deployment recommendation-hotelres allocation 500 usage 272 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1282 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+
+Round 60
+percentile p100 latency %!d(float64=4.268954992294312)
+percentile p90 latency %!d(float64=0.026867823786747083)
+percentile p99.999 latency %!d(float64=3.7910901675048003)
+percentile p95 latency %!d(float64=0.08235803586772393)
+percentile p99.9 latency %!d(float64=2.6073031093320727)
+percentile p99 latency %!d(float64=1.7279005918125516)
+percentile p99.99 latency %!d(float64=3.1008834012637463)
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1254
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 88
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1003
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 292
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 2993
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 977
+deployment search-hotelres allocation 1500 usage 1322 pods 3
+deployment user-hotelres allocation 500 usage 10 pods 1
+deployment frontend-hotelres allocation 1500 usage 1270 pods 3
+deployment geo-hotelres allocation 500 usage 466 pods 1
+deployment profile-hotelres allocation 500 usage 398 pods 1
+deployment rate-hotelres allocation 2000 usage 1862 pods 4
+deployment recommendation-hotelres allocation 500 usage 289 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+
+Round 61
+percentile p90 latency %!d(float64=0.015068066423049116)
+percentile p99.999 latency %!d(float64=4.106072770148842)
+percentile p95 latency %!d(float64=0.11211730399506746)
+percentile p99.9 latency %!d(float64=3.3538016030108997)
+percentile p99 latency %!d(float64=2.183713903430488)
+percentile p99.99 latency %!d(float64=3.7769978918360056)
+percentile p100 latency %!d(float64=4.164310216903687)
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 965
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 289
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3015
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 815
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1300
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 65
+deployment frontend-hotelres allocation 1500 usage 1191 pods 3
+deployment geo-hotelres allocation 500 usage 467 pods 1
+deployment profile-hotelres allocation 500 usage 399 pods 1
+deployment rate-hotelres allocation 2000 usage 1850 pods 4
+deployment recommendation-hotelres allocation 500 usage 287 pods 1
+deployment reservation-hotelres allocation 2000 usage 0 pods 4
+deployment search-hotelres allocation 1500 usage 1305 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+
+Round 62
+percentile p99.99 latency %!d(float64=0.12145613806487766)
+percentile p100 latency %!d(float64=0.1483964920043945)
+percentile p90 latency %!d(float64=0.013801654206975367)
+percentile p99.999 latency %!d(float64=0.14108496468504408)
+percentile p95 latency %!d(float64=0.018059665422765846)
+percentile p99.9 latency %!d(float64=0.0847076019901543)
+percentile p99 latency %!d(float64=0.03642756394309151)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 343
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3024
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 1073
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1283
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 1320
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 1033
+deployment rate-hotelres allocation 2000 usage 1924 pods 4
+deployment recommendation-hotelres allocation 500 usage 290 pods 1
+deployment reservation-hotelres allocation 2000 usage 1423 pods 4
+deployment search-hotelres allocation 1500 usage 1352 pods 3
+deployment user-hotelres allocation 500 usage 11 pods 1
+deployment frontend-hotelres allocation 1500 usage 1289 pods 3
+deployment geo-hotelres allocation 500 usage 466 pods 1
+deployment profile-hotelres allocation 500 usage 457 pods 1
+
+Round 63
+percentile p99.9 latency %!d(float64=2.669716506776397)
+percentile p99 latency %!d(float64=1.5444185175495893)
+percentile p99.99 latency %!d(float64=3.2765496138082644)
+percentile p100 latency %!d(float64=4.215982675552368)
+percentile p90 latency %!d(float64=0.3086087911318026)
+percentile p99.999 latency %!d(float64=4.1674311150568855)
+percentile p95 latency %!d(float64=0.6354235282018985)
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 266
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 3145
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 957
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 1253
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1055 usage 1994
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 989
+deployment geo-hotelres allocation 500 usage 460 pods 1
+deployment profile-hotelres allocation 500 usage 422 pods 1
+deployment rate-hotelres allocation 2000 usage 1867 pods 4
+deployment recommendation-hotelres allocation 500 usage 282 pods 1
+deployment reservation-hotelres allocation 2000 usage 1959 pods 4
+deployment search-hotelres allocation 1500 usage 1327 pods 3
+deployment user-hotelres allocation 500 usage 9 pods 1
+deployment frontend-hotelres allocation 1500 usage 1213 pods 3
+
+Round 64
+percentile p95 latency %!d(float64=0.8747014257649378)
+percentile p99.9 latency %!d(float64=2.8253185088943913)
+percentile p99 latency %!d(float64=1.9179701440675168)
+percentile p99.99 latency %!d(float64=3.893602231312119)
+percentile p100 latency %!d(float64=4.96537446975708)
+percentile p90 latency %!d(float64=0.5046485760217567)
+percentile p99.999 latency %!d(float64=4.78234834367401)
+node i-08a49160a55440b4b capacity 2000 allocation 1555 usage 24
+node i-08c177e5fd922b23b capacity 2000 allocation 1555 usage 180
+node i-0b2f3b99ca9b866b1 capacity 2000 allocation 1555 usage 172
+node i-0e0db0e4ca8c1ad1e capacity 2000 allocation 1655 usage 30
+node i-0415a323f64e51b2f capacity 2000 allocation 1580 usage 284
+node i-0489d778690a9925b capacity 4000 allocation 3885 usage 75
+deployment profile-hotelres allocation 500 usage 1 pods 1
+deployment rate-hotelres allocation 2000 usage 193 pods 4
+deployment recommendation-hotelres allocation 500 usage 1 pods 1
+deployment reservation-hotelres allocation 2500 usage 2 pods 5
+deployment search-hotelres allocation 1500 usage 3 pods 3
+deployment user-hotelres allocation 500 usage 1 pods 1
+deployment frontend-hotelres allocation 1500 usage 5 pods 3
+deployment geo-hotelres allocation 500 usage 1 pods 1

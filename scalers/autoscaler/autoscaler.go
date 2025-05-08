@@ -140,6 +140,11 @@ func (a *Autoscaler) RunRound() error {
 			}
 
 			// vscale
+			if newRequests < perpodalloc {
+				fmt.Printf("ℹ️ New requests (%d) < per pod alloc (%d) - no action taken\n", newRequests, perpodalloc)
+				continue
+			}
+
 			hasNoCongested := true
 			for _, pod := range podList {
 				usage, err := a.Metrics.GetNodeUsage(a.MetricsClientset, pod.Spec.NodeName)
@@ -183,7 +188,7 @@ func (a *Autoscaler) RunRound() error {
 				}
 			}
 
-			if hasNoCongested || newRequests < perpodalloc {
+			if hasNoCongested {
 				fmt.Printf("ℹ️ External bottleneck detected for %s - no action taken\n", deploymentName)
 				continue
 			} else {
