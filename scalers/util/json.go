@@ -85,7 +85,7 @@ func create_deployment_request_patch(containeridx int, cpurequests string) ([]by
 	dp := DeploymentPatch{
 		DeploymentPatchObj{
 			Operation: "replace",
-			Path:      fmt.Sprintf("/spec/containers/%d/resources", containeridx),
+			Path:      fmt.Sprintf("/spec/template/spec/containers/%d/resources", containeridx),
 			Value: VerticalPatchContainerResources{
 				Requests: VerticalPatchResourceSpec{cpurequests},
 			},
