@@ -27,13 +27,18 @@ func run_autoscaler() {
 		panic(err)
 	}
 
+	lastroundtime := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
 	for {
-		err := a.RunRound()
-		if err != nil {
-			panic(err)
+		// Check if the last round was more than 60 seconds ago
+		if time.Since(lastroundtime) >= 60*time.Second {
+			lastroundtime = time.Now()
+			err := a.RunRound()
+			if err != nil {
+				panic(err)
+			}
 		}
 
-		time.Sleep(60 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
 

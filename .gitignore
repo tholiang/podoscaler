@@ -26,5 +26,9 @@ go.work.sum
 # env file
 .env
 
+# data stuff
+watcher-graphs/
+watcher-output/
+
 # crying emoji
 .DS_Store
