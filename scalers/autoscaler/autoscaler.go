@@ -204,7 +204,7 @@ func (a *Autoscaler) RunRound() error {
 				}
 				currentRequests := pod.Spec.Containers[idx].Resources.Requests.Cpu().MilliValue()
 				additionalAllocation := newRequests - currentRequests
-				if additionalAllocation > allocable {
+				if allocable-additionalAllocation < 0.1*capacity {
 					fmt.Printf("🔄 Node migration: Moving pod %s to uncongested node\n", pod.Name)
 					err = a.hScale(idealReplicaCt+1, deploymentName, deploymentNamespace)
 					if err != nil {
