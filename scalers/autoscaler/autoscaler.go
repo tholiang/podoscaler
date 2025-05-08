@@ -120,16 +120,43 @@ func (a *Autoscaler) RunRound() error {
 
 		perpodalloc := int64(math.Ceil(float64(alloc) / float64(numPods)))
 
-		if a.isSLOViolated(deploymentName) {
+		if a.isSLOViolated(deploymentName) && utilPercent > 1 {
 			fmt.Printf("⚠️ SLO violation detected for %s\n", deploymentName)
 			// hscale
-			if idealReplicaCt > numPods {
+			if idealReplicaCt < 1 {
+				fmt.Printf("ℹ️ Ideal replica count (%d) < 1 - no action taken\n", idealReplicaCt)
+				continue
+			}
+
+			if idealReplicaCt > numPods { // hscale first (total increase) then vscale (possible decrease)
 				fmt.Printf("🔄 Horizontal scaling: %d -> %d replicas\n", numPods, idealReplicaCt)
 				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
 				if err != nil {
 					fmt.Printf("❌ ERROR: Failed to hscale deployment %s: %s\n", deploymentName, err.Error())
 					continue
 				}
+				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", perpodalloc, newRequests)
+				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("❌ ERROR: Failed to vscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
+				continue
+			} else if idealReplicaCt < numPods { // vscale first (total increase) then hscale (decrease)
+				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", perpodalloc, newRequests)
+				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("❌ ERROR: Failed to vscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
+				fmt.Printf("🔄 Horizontal scaling: %d -> %d replicas\n", numPods, idealReplicaCt)
+				err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
+				if err != nil {
+					fmt.Printf("❌ ERROR: Failed to hscale deployment %s: %s\n", deploymentName, err.Error())
+					continue
+				}
+
+				// have to vscale new pods again
 				fmt.Printf("🔄 Vertical scaling: %d -> %d millicpus\n", perpodalloc, newRequests)
 				err = a.vScaleTo(newRequests, deploymentName, deploymentNamespace)
 				if err != nil {
