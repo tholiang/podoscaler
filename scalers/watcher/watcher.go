@@ -76,21 +76,22 @@ func (w *Watcher) WatchRound() error {
 	// get node usages
 	nodelist, err := util.GetNodeList(w.Clientset)
 	if err != nil {
-		fmt.Printf("❌ ERROR: Failed to get node list: %s\n", err.Error())
+		fmt.Printf("ERROR: Failed to get node list: %s\n", err.Error())
 		return err
 	}
 
 	for _, node := range nodelist.Items {
 		nodeName := node.Name
-		usage, err := util.GetNodeUsage(w.MetricsClientset, nodeName)
-		if err != nil {
-			fmt.Printf("❌ ERROR: Failed to get usage for node %s: %s\n", nodeName, err.Error())
-			continue
-		}
 
 		allocable, capacity, err := util.GetNodeAllocableAndCapacity(w.Clientset, nodeName)
 		if err != nil {
-			fmt.Printf("❌ ERROR: Failed to get node metrics for node %s: %s\n", nodeName, err.Error())
+			fmt.Printf("ERROR: Failed to get node metrics for node %s: %s\n", nodeName, err.Error())
+			continue
+		}
+
+		usage, err := util.GetNodeUsage(w.MetricsClientset, nodeName)
+		if err != nil {
+			fmt.Printf("ERROR: Failed to get usage for node %s: %s\n", nodeName, err.Error())
 			continue
 		}
 
@@ -101,19 +102,19 @@ func (w *Watcher) WatchRound() error {
 	// get latency
 	lb_name, err := util.GetLoadBalancerName(w.Clientset, os.Getenv("AUTOSCALE_NAMESPACE"), os.Getenv("AUTOSCALE_LB"))
 	if err != nil {
-		fmt.Printf("❌ ERROR: Failed to get load balancer name: %s\n", err.Error())
+		fmt.Printf("ERROR: Failed to get load balancer name: %s\n", err.Error())
 		return err
 	}
 	rounddata.Latencies, err = util.GetLatencyCloudwatch(lb_name)
 	if err != nil {
-		fmt.Printf("❌ ERROR: Failed to get latency: %s\n", err.Error())
+		fmt.Printf("ERROR: Failed to get latency: %s\n", err.Error())
 		return err
 	}
 
 	// Get all deployments in the namespace
 	deployments, err := util.GetControlledDeployments(w.Clientset)
 	if err != nil {
-		fmt.Printf("❌ ERROR: Failed to get deployments: %s\n", err.Error())
+		fmt.Printf("ERROR: Failed to get deployments: %s\n", err.Error())
 		return err
 	}
 
@@ -125,13 +126,13 @@ func (w *Watcher) WatchRound() error {
 
 		podList, err := util.GetReadyPodListForDeployment(w.Clientset, deploymentName, deploymentNamespace)
 		if err != nil {
-			fmt.Printf("❌ ERROR: Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
+			fmt.Printf("ERROR: Failed to get pod list for deployment %s: %s\n", deploymentName, err.Error())
 			continue
 		}
 
 		utilization, alloc, err := util.GetDeploymentUtilAndAlloc(w.Clientset, w.MetricsClientset, deploymentName, deploymentNamespace, podList)
 		if err != nil {
-			fmt.Printf("❌ ERROR: Failed to get utilization metrics for deployment %s: %s\n", deploymentName, err.Error())
+			fmt.Printf("ERROR: Failed to get utilization metrics for deployment %s: %s\n", deploymentName, err.Error())
 			continue
 		}
 		deploymentdata.TotalAllocation = alloc

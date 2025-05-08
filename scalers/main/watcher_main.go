@@ -22,7 +22,7 @@ func run_autoscaler() {
 	for {
 		err := w.WatchRound()
 		if err != nil {
-			panic(err)
+			// panic(err)
 		}
 
 		time.Sleep(60 * time.Second)
