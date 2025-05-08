@@ -120,7 +120,11 @@ func (a *Autoscaler) RunRound() error {
 
 		perpodalloc := int64(math.Ceil(float64(alloc) / float64(numPods)))
 
-		slovio := a.isSLOViolated(deploymentName)
+		slovio, slo_err := a.isSLOViolated(deploymentName)
+		if slo_err != nil {
+			continue
+		}
+
 		if slovio && utilPercent > 1 {
 			fmt.Printf("⚠️ SLO violation detected for %s\n", deploymentName)
 			// hscale
@@ -258,22 +262,22 @@ func (a *Autoscaler) RunRound() error {
 	return nil
 }
 
-func (a *Autoscaler) isSLOViolated(deploymentName string) bool {
+func (a *Autoscaler) isSLOViolated(deploymentName string) (bool, error) {
 	metrics, err := a.Metrics.GetLatencyMetrics(a.Clientset)
 	if err != nil {
 		fmt.Printf("❌ ERROR: Failed to get latency metrics for %s: %s\n", deploymentName, err.Error())
-		return false
+		return false, err
 	}
 
 	if len(metrics) == 0 {
 		fmt.Printf("ℹ️ No latency metrics found for deployment %s\n", deploymentName)
-		return false
+		return false, err
 	}
 	latency := metrics["p99"] * 1000 // convert from s to ms
 	dist := latency / float64(a.LatencyThreshold)
 	fmt.Printf("📊 Latency metrics: %.2fms (threshold: %dms)\n", latency, a.LatencyThreshold)
 
-	return dist > 1
+	return dist > 1, nil
 }
 
 // in-place scale all pods to the given CPU request
