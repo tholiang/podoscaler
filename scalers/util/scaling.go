@@ -69,7 +69,7 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 
 func PatchDeploymentReqs(clientset kube_client.Interface, deploymentName string, containeridx int, cpurequests string, namespace string) error {
 	// create patch with number of replicas
-	patch, err := create_deployment_request_patch(deploymentName, containeridx, cpurequests)
+	patch, err := create_deployment_request_patch(containeridx, cpurequests)
 	if err != nil {
 		return err
 	}

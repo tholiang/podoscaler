@@ -73,17 +73,23 @@ type VerticalScaleRequest struct {
 	CpuRequests   string `json:"cpurequests"`
 }
 
-type DeploymentPatch struct {
-	Operation string `json:"op"`
-	Path      string `json:"path"`
-	Value     string `json:"value"`
+type DeploymentPatchObj struct {
+	Operation string                          `json:"op"`
+	Path      string                          `json:"path"`
+	Value     VerticalPatchContainerResources `json:"value"`
 }
 
-func create_deployment_request_patch(deploymentname string, containeridx int, cpurequests string) ([]byte, error) {
+type DeploymentPatch []DeploymentPatchObj
+
+func create_deployment_request_patch(containeridx int, cpurequests string) ([]byte, error) {
 	dp := DeploymentPatch{
-		Operation: "replace",
-		Path:      fmt.Sprintf("/spec/containers/%d/resources", containeridx),
-		Value:     fmt.Sprintf("{'requests':{'cpu':'%s'}}", cpurequests),
+		DeploymentPatchObj{
+			Operation: "replace",
+			Path:      fmt.Sprintf("/spec/containers/%d/resources", containeridx),
+			Value: VerticalPatchContainerResources{
+				Requests: VerticalPatchResourceSpec{cpurequests},
+			},
+		},
 	}
 	return json.Marshal(dp)
 }
