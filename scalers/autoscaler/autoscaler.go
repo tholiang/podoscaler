@@ -106,6 +106,19 @@ func (a *Autoscaler) RunRound() error {
 			continue
 		}
 
+		unschedulablePodList, err := a.Metrics.GetUnschedulablePodListForDeployment(a.Clientset, deploymentName, deploymentNamespace)
+		if err != nil {
+			fmt.Printf("❌ ERROR: Failed to get unschedulable pod list for deployment %s: %s\n", deploymentName, err.Error())
+		} else {
+			if len(unschedulablePodList) > 0 {
+				fmt.Print("⚠️ Unschedulable pods: ")
+				for _, pod := range unschedulablePodList {
+					fmt.Printf("%s ", pod.Name)
+				}
+				fmt.Println()
+			}
+		}
+
 		utilization, alloc, err := a.Metrics.GetDeploymentUtilAndAlloc(a.Clientset, a.MetricsClientset, deploymentName, deploymentNamespace, podList)
 		if err != nil {
 			fmt.Printf("❌ ERROR: Failed to get utilization metrics for deployment %s: %s\n", deploymentName, err.Error())

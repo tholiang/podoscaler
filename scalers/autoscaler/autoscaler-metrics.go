@@ -34,6 +34,10 @@ func (m *DefaultAutoscalerMetrics) GetNodeList(clientset kube_client.Interface) 
 	return util.GetNodeList(clientset)
 }
 
+func (m *DefaultAutoscalerMetrics) GetUnschedulablePodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
+	return util.GetUnschedulablePodListForDeployment(clientset, deploymentName, namespace)
+}
+
 func (m *DefaultAutoscalerMetrics) GetPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
 	return util.GetReadyPodListForDeployment(clientset, deploymentName, namespace)
 }

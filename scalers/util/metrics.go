@@ -42,6 +42,38 @@ func GetNodeList(clientset kube_client.Interface) (*v1.NodeList, error) {
 	return clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 }
 
+func GetUnschedulablePodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
+	ctx := context.TODO()
+
+	// Get the Deployment
+	deployment, err := clientset.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get deployment: %w", err)
+	}
+
+	// List Pods from metric server using the deployment's label selector
+	labelSelector := labels.Set(deployment.Spec.Selector.MatchLabels).AsSelector().String()
+
+	podlistobj, err := clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: labelSelector,
+	})
+	if err != nil {
+		return []v1.Pod{}, err
+	}
+
+	podlist := []v1.Pod{}
+	for _, poddata := range podlistobj.Items {
+		for _, cond := range poddata.Status.Conditions {
+			if cond.Type == v1.PodScheduled && cond.Reason == v1.PodReasonUnschedulable {
+				podlist = append(podlist, poddata)
+				break
+			}
+		}
+	}
+
+	return podlist, nil
+}
+
 func GetReadyPodListForDeployment(clientset kube_client.Interface, deploymentName, namespace string) ([]v1.Pod, error) {
 	ctx := context.TODO()
 

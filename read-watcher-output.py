@@ -92,8 +92,8 @@ plt.xlabel("Time (minutes)")
 plt.ylabel("Latency (ms)")
 
 plt.plot(times, latencies_over_time["p90"], label=f"p90")
-plt.plot(times, latencies_over_time["p95"], label=f"p95")
-plt.plot(times, latencies_over_time["p99"], label=f"p99")
+# plt.plot(times, latencies_over_time["p95"], label=f"p95")
+# plt.plot(times, latencies_over_time["p99"], label=f"p99")
 
 plt.legend()
 output_file = os.path.join(output_folder, file_name+"-latencies_over_time.png")
