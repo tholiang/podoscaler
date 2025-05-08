@@ -27,5 +27,5 @@ kubectl apply -f ./deploy/deploy-watcher.yaml
 # deploy the autoscaler
 for deployment in "${deployments[@]}"; do
   echo "Autoscaling $deployment..."
-  kubectl autoscale deployment $deployment -n deathstarbench --cpu-percent=90 --min=1
+  kubectl autoscale deployment $deployment -n deathstarbench --cpu-percent=90 --min=1 --max=20
 done
