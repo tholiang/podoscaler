@@ -287,11 +287,13 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string, deploymentNam
 		return err
 	}
 
+	containeridx := 0
 	reqstr := fmt.Sprintf("%dm", millis)
 	for _, pod := range podList {
 		idx := 0
 		if pod.Spec.Containers[0].Name == "linkerd-proxy" {
 			idx = 1
+			containeridx = 1
 		}
 		container := pod.Spec.Containers[idx] // TODO: handle multiple containers
 		err = a.Metrics.VScale(a.Clientset, pod.Name, container.Name, reqstr, deploymentNamespace)
@@ -299,6 +301,12 @@ func (a *Autoscaler) vScaleTo(millis int64, deploymentName string, deploymentNam
 			fmt.Printf("Failed to vscale pod %s: %s\n", pod.Name, err.Error())
 			return err
 		}
+	}
+
+	err = a.Metrics.PatchDeploymentReqs(a.Clientset, deploymentName, containeridx, reqstr, deploymentNamespace)
+	if err != nil {
+		fmt.Printf("Failed to vscale deployment %s: %s\n", deploymentName, err.Error())
+		return err
 	}
 
 	return nil

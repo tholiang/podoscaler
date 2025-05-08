@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // theres definitely a better way to do this
@@ -70,4 +71,19 @@ type VerticalScaleRequest struct {
 	PodName       string `json:"podname"`
 	ContainerName string `json:"containername"`
 	CpuRequests   string `json:"cpurequests"`
+}
+
+type DeploymentPatch struct {
+	Operation string `json:"op"`
+	Path      string `json:"path"`
+	Value     string `json:"value"`
+}
+
+func create_deployment_request_patch(deploymentname string, containeridx int, cpurequests string) ([]byte, error) {
+	dp := DeploymentPatch{
+		Operation: "replace",
+		Path:      fmt.Sprintf("/spec/containers/%d/resources", containeridx),
+		Value:     fmt.Sprintf("{'requests':{'cpu':'%s'}}", cpurequests),
+	}
+	return json.Marshal(dp)
 }

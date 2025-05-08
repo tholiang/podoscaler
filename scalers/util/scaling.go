@@ -67,6 +67,22 @@ func VScale(clientset kube_client.Interface, podname string, containername strin
 	return nil
 }
 
+func PatchDeploymentReqs(clientset kube_client.Interface, deploymentName string, containeridx int, cpurequests string, namespace string) error {
+	// create patch with number of replicas
+	patch, err := create_deployment_request_patch(deploymentName, containeridx, cpurequests)
+	if err != nil {
+		return err
+	}
+
+	// patch default pod size for deployment
+	_, err = clientset.AppsV1().Deployments(namespace).Patch(context.TODO(), deploymentName, k8stypes.JSONPatchType, patch, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeletePod(clientset kube_client.Interface, podname string, namespace string) error {
 	err := clientset.CoreV1().Pods(namespace).Delete(context.TODO(), podname, metav1.DeleteOptions{})
 	if err != nil {
