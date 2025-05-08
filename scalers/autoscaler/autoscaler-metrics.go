@@ -62,6 +62,10 @@ func (m *DefaultAutoscalerMetrics) VScale(clientset kube_client.Interface, podna
 	return util.VScale(clientset, podname, containername, cpurequests, namespace)
 }
 
+func (m *DefaultAutoscalerMetrics) PatchDeploymentReqs(clientset kube_client.Interface, deploymentName string, containeridx int, cpurequests string, namespace string) error {
+	return util.PatchDeploymentReqs(clientset, deploymentName, containeridx, cpurequests, namespace)
+}
+
 func (m *DefaultAutoscalerMetrics) ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error {
 	return util.ChangeReplicaCount(namespace, deploymentName, replicaCt, clientset)
 }

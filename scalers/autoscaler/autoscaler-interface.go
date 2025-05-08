@@ -22,6 +22,7 @@ type AutoscalerMetrics interface {
 	GetNodeAllocableAndCapacity(clientset kube_client.Interface, nodeName string) (int64, int64, error)
 	GetLatencyMetrics(client_set kube_client.Interface) (map[string]float64, error)
 	VScale(clientset kube_client.Interface, podname string, containername string, cpurequests string, namespace string) error
+	PatchDeploymentReqs(clientset kube_client.Interface, deploymentName string, containeridx int, cpurequests string, namespace string) error
 	ChangeReplicaCount(namespace string, deploymentName string, replicaCt int, clientset kube_client.Interface) error
 	GetControlledDeployments(clientset kube_client.Interface) (*appsv1.DeploymentList, error)
 	DeletePod(clientset kube_client.Interface, podname string, namespace string) error
