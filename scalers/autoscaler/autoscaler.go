@@ -134,11 +134,8 @@ func (a *Autoscaler) RunRound() error {
 		perpodalloc := int64(math.Ceil(float64(alloc) / float64(numPods)))
 
 		slovio, slo_err := a.isSLOViolated(deploymentName)
-		if slo_err != nil {
-			continue
-		}
 
-		if slovio && utilPercent > 1 {
+		if (slovio || slo_err != nil) && utilPercent > 1 {
 			fmt.Printf("⚠️ SLO violation detected for %s\n", deploymentName)
 			// hscale
 			if idealReplicaCt < 1 {
@@ -244,7 +241,7 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 			}
-		} else if !slovio && utilPercent < a.DownscaleUtilizationThreshold {
+		} else if (!slovio && slo_err == nil) && utilPercent < a.DownscaleUtilizationThreshold {
 			idealReplicaCt = max(idealReplicaCt, 1)
 			if idealReplicaCt < numPods {
 				fmt.Printf("🔄 Downscaling: %d -> %d replicas\n", numPods, idealReplicaCt)
