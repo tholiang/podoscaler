@@ -1,6 +1,15 @@
+import sys
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+
+if len(sys.argv) != 3:
+    print("Usage: python read-watcher-output.py <file_path> <scaler_label>")
+    sys.exit(1)
+
 # Prompt the user for the name of the text file
-file_path = input("Enter the name of the text file (with extension): ")
-scaler_label = input("Enter the scaler label for the graph: ")
+file_path = sys.argv[1]
+scaler_label = sys.argv[2]
 
 content = ""
 try:
@@ -12,7 +21,7 @@ except FileNotFoundError:
 except Exception as e:
     print(f"An error occurred: {e}")
 
-file_name = file_path.split("/")[-1].split(".")[0]
+file_name = os.path.basename(file_path).split(".")[0]
 
 latencies_over_time = {}
 node_usage_over_time = {}
@@ -75,9 +84,6 @@ for line in content.splitlines():
         deployment_pods_over_time[deployment].append(pods)
 
 # graph the data
-import matplotlib.pyplot as plt
-import numpy as np
-import os
 
 # Create the folder if it doesn't exist
 output_folder = "watcher-graphs"
