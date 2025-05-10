@@ -28,7 +28,7 @@ def main():
         "deployment/{}".format(deployment),
         "-n", namespace,
         "--all-containers=false",
-        "--prefix=true",
+        "--prefix=false",
         "--max-log-requests=20"
     ]
 
