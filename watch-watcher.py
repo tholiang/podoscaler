@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import re
+import time
 
 def main():
     deployment = "watcher"
@@ -26,7 +27,7 @@ def main():
         "-f",
         "deployment/{}".format(deployment),
         "-n", namespace,
-        "--all-containers=true",
+        "--all-containers=false",
         "--prefix=true",
         "--max-log-requests=20"
     ]
@@ -38,28 +39,31 @@ def main():
     buffer_lines = []
     in_round = False
 
-    try:
-        for line in proc.stdout:
-            line = line.rstrip("\n")
-            # Check if this line starts a new round
-            if round_pattern.match(line):
-                # if we were already inside a round, flush the buffered round to file
-                if in_round and buffer_lines:
-                    flush_round(buffer_lines, output_file)
-                    buffer_lines = []
-                in_round = True
+    while True:
+        try:
+            for line in proc.stdout:
+                line = line.rstrip("\n")
+                # Check if this line starts a new round
+                if round_pattern.match(line):
+                    # if we were already inside a round, flush the buffered round to file
+                    if in_round and buffer_lines:
+                        flush_round(buffer_lines, output_file)
+                        buffer_lines = []
+                    in_round = True
 
-            # Buffer lines if we're in a round
-            if in_round:
-                buffer_lines.append(line)
-            
-            # Also print output live
-            print(line)
+                # Buffer lines if we're in a round
+                if in_round:
+                    buffer_lines.append(line)
+                
+                # Also print output live
+                print(line)
 
-    except KeyboardInterrupt:
-        print("Interrupted. Exiting.")
-    finally:
-        proc.kill()
+        except KeyboardInterrupt:
+            print("Interrupted. Exiting.")
+        finally:
+            proc.kill()
+        
+        time.sleep(300)
 
 def flush_round(buffer_lines, output_file):
     separator = "\n---\n"

@@ -21,7 +21,7 @@ const (
 
 const (
 	DEFAULT_MAPS              = 500 // in millicpus
-	DEFAULT_MIN_REQUESTS      = 100 // in millicpus
+	DEFAULT_MIN_REQUESTS      = 50  // in millicpus
 	DEFAULT_LATENCY_THRESHOLD = 40  // in milliseconds
 )
 
@@ -188,6 +188,7 @@ func (a *Autoscaler) RunRound() error {
 			}
 
 			hasNoCongested := true
+			moveFailed := false
 			for _, pod := range podList {
 				usage, err := a.Metrics.GetNodeUsage(a.MetricsClientset, pod.Spec.NodeName)
 				if err != nil {
@@ -201,9 +202,9 @@ func (a *Autoscaler) RunRound() error {
 					continue
 				}
 
-				unusedCPU := min(capacity-usage, allocable)
-				unusedPercentage := float64(unusedCPU) / float64(capacity)
-				if unusedPercentage > a.MinNodeAvailabilityThreshold {
+				availableCPU := min(capacity-usage, allocable)
+				availablePercentage := float64(availableCPU) / float64(capacity)
+				if availablePercentage > a.MinNodeAvailabilityThreshold {
 					continue
 				}
 				hasNoCongested = false
@@ -214,12 +215,13 @@ func (a *Autoscaler) RunRound() error {
 				}
 				currentRequests := pod.Spec.Containers[idx].Resources.Requests.Cpu().MilliValue()
 				additionalAllocation := newRequests - currentRequests
-				if allocable-additionalAllocation < int64(0.1*float64(capacity)) {
+				if additionalAllocation > allocable {
 					fmt.Printf("🔄 Node migration: Moving pod %s to uncongested node\n", pod.Name)
 					err = a.hScale(idealReplicaCt+1, deploymentName, deploymentNamespace)
 					if err != nil {
 						fmt.Printf("❌ ERROR: Failed to add affinity pod for deployment %s: %s\n", deploymentName, err.Error())
-						continue
+						moveFailed = true
+						break
 					}
 					a.Metrics.DeletePod(a.Clientset, pod.Name, deploymentNamespace)
 					err = a.hScale(idealReplicaCt, deploymentName, deploymentNamespace)
@@ -230,7 +232,10 @@ func (a *Autoscaler) RunRound() error {
 				}
 			}
 
-			if hasNoCongested {
+			if moveFailed {
+				fmt.Printf("❌ ERROR: Failed to move pod for deployment %s - assuming no available node space\n", deploymentName)
+				continue
+			} else if hasNoCongested {
 				fmt.Printf("ℹ️ External bottleneck detected for %s - no action taken\n", deploymentName)
 				continue
 			} else {
